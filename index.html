@@ -2130,6 +2130,8 @@ function showErr(msg) {
 }
 
 async function initUser() {
+  showErr('START tg=' + (tg ? 'YES' : 'NO') + ' initData=' + (tg?.initData ? tg.initData.slice(0,30) : 'NONE') + ' unsafe=' + JSON.stringify(tg?.initDataUnsafe?.user));
+
   // Parse TG user from initData (more reliable than initDataUnsafe)
   let tgUser = tg?.initDataUnsafe?.user;
 
