@@ -2154,7 +2154,8 @@ async function initUser() {
     currentUserPhoto = null;
   }
 
-  showErr('uid=' + currentUserId + ' type=' + typeof currentUserId + ' tgUser=' + (tgUser ? 'YES' : 'NO'));
+  showErr('uid=' + currentUserId + ' name=' + currentUserName);
+  document.getElementById('user-name').textContent = currentUserName;
   document.getElementById('rank-badge').textContent = 'РАНГ: ЗАВОДЧАНИН';
   const avatarEl = document.getElementById('user-avatar');
   avatarEl.src = currentUserPhoto ||
