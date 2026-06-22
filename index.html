@@ -1,0 +1,3257 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Challenge 1000$</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
+
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  
+  :root {
+    --gold: #F5C518;
+    --gold-dark: #a16207;
+    --gold-light: #fef08a;
+    --bg: #0a0e1a;
+    --bg-card: rgba(15, 20, 35, 0.9);
+    --border-gold: rgba(245, 197, 24, 0.5);
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: #fff;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  /* ── Background layers ── */
+  .bg-layer {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  }
+  .bg-factory {
+    background: linear-gradient(to top, var(--bg) 0%, transparent 60%);
+  }
+  .bg-glow {
+    background: radial-gradient(ellipse at 50% 80%, rgba(245,197,24,0.06) 0%, transparent 60%);
+  }
+
+  /* ── Main layout ── */
+  .app-container {
+    position: relative; z-index: 1;
+    display: flex; flex-direction: column;
+    height: 100vh; height: 100dvh;
+    width: 100%; max-width: 480px; margin: 0 auto;
+  }
+
+  /* ── Header ── */
+  .header {
+    padding: 12px 16px 0;
+    display: flex; align-items: center; gap: 12px;
+    flex-shrink: 0;
+  }
+  .avatar {
+    width: 48px; height: 48px; border-radius: 50%;
+    border: 2px solid var(--gold);
+    box-shadow: 0 0 12px rgba(245,197,24,0.3);
+    object-fit: cover; background: #1a1f2e;
+  }
+  .user-name {
+    font-size: 20px; font-weight: 900; letter-spacing: -0.3px;
+    line-height: 1.1;
+  }
+  .rank-badge {
+    display: inline-block; margin-top: 4px;
+    border: 1.5px solid var(--border-gold);
+    border-radius: 8px; padding: 3px 10px;
+    font-size: 9px; font-weight: 800;
+    color: var(--gold); letter-spacing: 2px;
+    text-transform: uppercase;
+    background: rgba(245,197,24,0.05);
+    box-shadow: 0 0 8px rgba(245,197,24,0.1);
+  }
+
+  /* ── Middle area (character + side buttons) ── */
+  .middle-area {
+    flex: 1; position: relative;
+    display: flex; align-items: center; justify-content: center;
+    min-height: 0; overflow: hidden;
+    padding: 0 16px;
+  }
+  .character-wrap {
+    position: absolute; inset: 0;
+    display: flex; align-items: flex-end; justify-content: center;
+    z-index: 0; padding-bottom: 5%;
+  }
+  .character-wrap img {
+    height: 85%; max-height: 400px; width: auto;
+    object-fit: contain;
+    animation: float 5s ease-in-out infinite;
+    transition: opacity 0.2s ease;
+  }
+
+  .side-left, .side-right {
+    position: relative; z-index: 2;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .side-left { align-self: flex-start; margin-top: 10px; }
+  .side-right { align-self: flex-start; margin-top: 10px; margin-left: auto; }
+
+  .side-btn {
+    width: 72px; height: 72px;
+    border: 1.5px solid var(--border-gold);
+    border-radius: 14px;
+    background: var(--bg-card);
+    backdrop-filter: blur(8px);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 4px; cursor: pointer;
+    box-shadow: 0 0 10px rgba(245,197,24,0.1);
+    transition: transform 0.1s;
+  }
+  .side-btn:active { transform: scale(0.93); }
+  .side-btn .icon { font-size: 22px; }
+  .side-btn .label {
+    font-size: 7px; font-weight: 800;
+    color: var(--gold); letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .days-box {
+    border: 1.5px solid var(--border-gold);
+    border-radius: 14px;
+    background: var(--bg-card);
+    backdrop-filter: blur(8px);
+    padding: 10px 14px;
+    text-align: center;
+    box-shadow: 0 0 10px rgba(245,197,24,0.1);
+  }
+  .days-box .lbl {
+    font-size: 8px; font-weight: 700;
+    color: rgba(255,255,255,0.5);
+    letter-spacing: 2px; text-transform: uppercase;
+  }
+  .days-box .num {
+    font-size: 32px; font-weight: 900;
+    color: var(--gold); line-height: 1;
+    text-shadow: 0 0 14px rgba(245,197,24,0.4);
+  }
+  .days-box .unit {
+    font-size: 12px; font-weight: 800;
+    color: var(--gold); letter-spacing: 1px;
+    text-transform: lowercase;
+  }
+
+  /* ── Bottom panel ── */
+  .bottom-panel {
+    flex-shrink: 0; padding: 0 16px 6px;
+    display: flex; flex-direction: column; gap: 8px;
+    z-index: 10;
+  }
+
+  .input-row {
+    display: flex; align-items: center; gap: 8px;
+    border: 1.5px solid var(--border-gold);
+    border-radius: 18px;
+    background: var(--bg-card);
+    padding: 6px 6px 6px 4px;
+    box-shadow: 0 0 12px rgba(245,197,24,0.08);
+  }
+
+  .progress-circle {
+    width: 56px; height: 56px; flex-shrink: 0;
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .progress-circle svg { position: absolute; inset: 0; }
+  .progress-circle .amount {
+    position: relative; z-index: 1;
+    font-size: 12px; font-weight: 900; color: #fff;
+    line-height: 1;
+  }
+  .progress-circle .of {
+    position: relative; z-index: 1;
+    font-size: 6px; font-weight: 700;
+    color: rgba(255,255,255,0.45);
+    letter-spacing: 1px;
+  }
+  .progress-circle .inner {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    position: relative; z-index: 1;
+  }
+
+  .money-input-wrap {
+    flex: 1; position: relative;
+  }
+  .money-input-wrap .dollar-sign {
+    position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+    font-size: 14px; font-weight: 700; color: var(--gold);
+  }
+  .money-input {
+    width: 100%; background: rgba(0,0,0,0.5);
+    border: 1px solid rgba(245,197,24,0.2);
+    border-radius: 12px; padding: 10px 10px 10px 28px;
+    color: #fff; font-size: 16px; font-weight: 700;
+    font-family: inherit; outline: none;
+    transition: border-color 0.2s;
+  }
+  .money-input:focus { border-color: var(--gold); }
+  .money-input::placeholder { color: rgba(255,255,255,0.2); }
+
+  .add-btn {
+    flex-shrink: 0;
+    background: linear-gradient(135deg, var(--gold-light), var(--gold), var(--gold-dark));
+    border: none; border-radius: 12px;
+    padding: 12px 14px;
+    font-size: 10px; font-weight: 900;
+    color: #000; letter-spacing: 1.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    box-shadow: 0 0 16px rgba(245,197,24,0.3);
+    transition: transform 0.1s;
+    font-family: inherit;
+  }
+  .add-btn:active { transform: scale(0.95); }
+
+  .bottom-strip {
+    display: flex; justify-content: center;
+  }
+  .bottom-strip-inner {
+    border: 1px solid var(--border-gold);
+    border-radius: 20px; padding: 5px 20px;
+    font-size: 8px; font-weight: 800;
+    color: var(--gold); letter-spacing: 2px;
+    text-transform: uppercase;
+    background: rgba(245,197,24,0.03);
+  }
+
+  /* ── Bottom nav ── */
+  .bottom-nav {
+    flex-shrink: 0;
+    display: flex; justify-content: space-around; align-items: center;
+    padding: 8px 0 calc(8px + env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid rgba(245,197,24,0.15);
+    background: rgba(10,14,26,0.95);
+    backdrop-filter: blur(12px);
+  }
+  .nav-btn {
+    display: flex; flex-direction: column;
+    align-items: center; gap: 2px;
+    background: none; border: none;
+    color: rgba(255,255,255,0.3);
+    cursor: pointer; padding: 4px 12px;
+    transition: color 0.2s;
+    font-family: inherit;
+  }
+  .nav-btn.active { color: var(--gold); }
+  .nav-btn .nav-icon { font-size: 20px; }
+  .nav-btn .nav-label {
+    font-size: 8px; font-weight: 800;
+    letter-spacing: 1.5px; text-transform: uppercase;
+  }
+
+  /* ── Tabs ── */
+  .tab { display: none; }
+  .tab.active { display: flex; }
+  .ranks-tab.active, .gang-tab.active, .shop-tab.active, .spin-tab.active { display: flex; }
+
+  /* ── Ranks tab ── */
+  .ranks-tab {
+    flex-direction: column; gap: 8px;
+    padding: 8px 14px 20px; overflow-y: auto;
+    flex: 1;
+    -webkit-overflow-scrolling: touch;
+  }
+  .ranks-tab::-webkit-scrollbar { display: none; }
+  .ranks-tab h2 {
+    font-size: 22px; font-weight: 900;
+    letter-spacing: 2px; text-transform: uppercase;
+  }
+  .rank-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 14px; border-radius: 14px;
+    border: 1.5px solid rgba(255,255,255,0.06);
+    background: rgba(0,0,0,0.3);
+    transition: all 0.3s;
+  }
+  .rank-item.current {
+    border-color: var(--border-gold);
+    background: var(--bg-card);
+    box-shadow: 0 0 12px rgba(245,197,24,0.1);
+  }
+  .rank-item .rank-left {
+    display: flex; align-items: center; gap: 12px;
+  }
+  .rank-item .rank-icon { font-size: 22px; }
+  .rank-item .rank-name {
+    font-size: 14px; font-weight: 700; color: #fff;
+  }
+  .rank-item.current .rank-name { color: var(--gold); }
+  .rank-item .rank-req {
+    font-size: 9px; font-weight: 700;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 1px; margin-top: 2px;
+  }
+  .rank-item .you-badge {
+    font-size: 7px; font-weight: 900;
+    background: var(--gold); color: #000;
+    padding: 3px 8px; border-radius: 10px;
+    letter-spacing: 1.5px;
+    box-shadow: 0 0 10px rgba(245,197,24,0.3);
+  }
+
+  /* ── Gang tab ── */
+  .gang-tab {
+    flex-direction: column; gap: 8px;
+    padding: 8px 14px 20px; overflow-y: auto;
+    flex: 1;
+    -webkit-overflow-scrolling: touch;
+  }
+  .gang-tab::-webkit-scrollbar { display: none; }
+  .gang-tab h2 {
+    font-size: 22px; font-weight: 900;
+    letter-spacing: 2px; text-transform: uppercase;
+  }
+  .gang-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 14px; border-radius: 14px;
+    border: 1.5px solid var(--border-gold);
+    background: var(--bg-card);
+    box-shadow: 0 0 10px rgba(245,197,24,0.08);
+  }
+  .gang-left {
+    display: flex; align-items: center; gap: 10px;
+  }
+  .gang-pos {
+    font-size: 16px; font-weight: 900; color: var(--gold);
+    width: 20px; text-align: center;
+  }
+  .gang-avatar {
+    width: 36px; height: 36px; border-radius: 50%;
+    border: 1.5px solid var(--gold); background: #1a1f2e;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    box-shadow: 0 0 8px rgba(245,197,24,0.2);
+    object-fit: cover;
+  }
+  .gang-name { font-size: 14px; font-weight: 700; }
+  .gang-rank {
+    font-size: 8px; font-weight: 700;
+    color: var(--gold); letter-spacing: 1.5px;
+    text-transform: uppercase; margin-top: 2px;
+  }
+  .gang-score { font-size: 14px; font-weight: 900; }
+
+
+  /* ── Token badge (header) ── */
+  .token-row {
+    display: flex; align-items: center; gap: 8px;
+    margin-top: 6px;
+  }
+  .token-badge {
+    display: flex; align-items: center; gap: 5px;
+    background: rgba(245,197,24,0.08);
+    border: 1px solid rgba(245,197,24,0.25);
+    border-radius: 20px;
+    padding: 3px 10px 3px 6px;
+  }
+  .token-icon {
+    width: 18px; height: 18px;
+    background: linear-gradient(135deg, var(--gold-light), var(--gold));
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 8px; font-weight: 900; color: #000;
+    box-shadow: 0 0 6px rgba(245,197,24,0.3);
+  }
+  .token-amount {
+    font-size: 12px; font-weight: 800; color: var(--gold);
+    letter-spacing: 0.5px;
+  }
+  .game-id-badge {
+    font-size: 9px; font-weight: 700;
+    color: rgba(255,255,255,0.3);
+    letter-spacing: 1.5px;
+  }
+
+  /* ── Rank background ── */
+  .rank-bg {
+    position: fixed; inset: 0; z-index: 0;
+    pointer-events: none;
+    opacity: 0.14;
+    transition: opacity 0.6s ease;
+    display: flex; align-items: flex-end; justify-content: center;
+    overflow: hidden;
+  }
+  .rank-bg svg {
+    width: 100%; max-width: 480px; height: auto;
+    max-height: 85vh;
+  }
+  .rank-bg.fading { opacity: 0; }
+
+  /* ── Background SVG elements ── */
+  .bg-chart {
+    position: absolute;
+    bottom: 30%; right: 0; left: 0;
+    height: 50%; opacity: 0.08;
+    z-index: 0; pointer-events: none;
+  }
+  .bg-arrow {
+    position: absolute;
+    top: 10%; right: 10%;
+    width: 120px; height: 120px;
+    opacity: 0.15; z-index: 0;
+    pointer-events: none;
+  }
+
+
+
+  /* ── Promo code section ── */
+  .promo-section {
+    margin-top: 12px; padding: 0 16px 16px;
+    flex-shrink: 0;
+  }
+  .promo-row {
+    display: flex; gap: 8px; align-items: center;
+  }
+  .promo-input {
+    flex: 1; background: rgba(0,0,0,0.5);
+    border: 1.5px solid rgba(245,197,24,0.2);
+    border-radius: 12px; padding: 11px 14px;
+    color: #fff; font-size: 13px; font-weight: 700;
+    font-family: inherit; outline: none;
+    letter-spacing: 2px; text-transform: uppercase;
+    transition: border-color 0.2s;
+  }
+  .promo-input:focus { border-color: var(--gold); }
+  .promo-input::placeholder { color: rgba(255,255,255,0.2); font-weight:400; letter-spacing:1px; text-transform:none; }
+  .promo-btn {
+    background: rgba(245,197,24,0.1);
+    border: 1.5px solid var(--border-gold);
+    border-radius: 12px; padding: 11px 14px;
+    font-size: 10px; font-weight: 900;
+    color: var(--gold); letter-spacing: 1px;
+    cursor: pointer; font-family: inherit;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+  .promo-btn:active { background: rgba(245,197,24,0.2); }
+  .promo-msg {
+    font-size: 10px; text-align: center;
+    margin-top: 6px; min-height: 14px;
+    font-weight: 700; letter-spacing: 0.5px;
+  }
+
+  /* ── Goal bonus notification ── */
+  .goal-toast {
+    position: fixed; top: 20px; left: 50%;
+    transform: translateX(-50%) translateY(-80px);
+    background: linear-gradient(135deg, #141a2e, #0e1322);
+    border: 1.5px solid var(--gold);
+    border-radius: 16px; padding: 12px 20px;
+    text-align: center; z-index: 999;
+    box-shadow: 0 0 30px rgba(245,197,24,0.25);
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    pointer-events: none; white-space: nowrap;
+  }
+  .goal-toast.show { transform: translateX(-50%) translateY(0); }
+  .goal-toast .gt-title {
+    font-size: 10px; font-weight: 800;
+    color: rgba(255,255,255,0.5); letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .goal-toast .gt-amount {
+    font-size: 22px; font-weight: 900;
+    color: var(--gold);
+    text-shadow: 0 0 12px rgba(245,197,24,0.4);
+  }
+  .goal-toast .gt-sub {
+    font-size: 9px; color: rgba(255,255,255,0.35);
+    letter-spacing: 1px;
+  }
+
+  /* ── Deposit proof modal ── */
+  .deposit-modal {
+    position: fixed; inset: 0; z-index: 1000;
+    background: rgba(0,0,0,0.88);
+    backdrop-filter: blur(12px);
+    display: flex; align-items: center; justify-content: center;
+    padding: 24px;
+    opacity: 1; transition: opacity 0.3s;
+  }
+  .deposit-modal.hidden { opacity: 0; pointer-events: none; }
+  .deposit-box {
+    background: linear-gradient(145deg, #141a2e, #0e1322);
+    border: 1.5px solid var(--border-gold);
+    border-radius: 20px;
+    padding: 24px 20px;
+    width: 100%; max-width: 360px;
+    box-shadow: 0 0 40px rgba(245,197,24,0.1);
+  }
+  .deposit-box h3 {
+    font-size: 16px; font-weight: 900;
+    letter-spacing: 1.5px; text-align: center;
+    margin-bottom: 4px; text-transform: uppercase;
+  }
+  .deposit-box .dep-subtitle {
+    font-size: 10px; color: rgba(255,255,255,0.35);
+    text-align: center; margin-bottom: 16px;
+    letter-spacing: 0.5px;
+  }
+  .deposit-amount-display {
+    text-align: center; font-size: 28px;
+    font-weight: 900; color: var(--gold);
+    margin-bottom: 16px;
+    text-shadow: 0 0 12px rgba(245,197,24,0.3);
+  }
+  .upload-zone {
+    border: 2px dashed rgba(245,197,24,0.3);
+    border-radius: 14px;
+    padding: 24px 16px;
+    text-align: center; cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 12px;
+    position: relative;
+    overflow: hidden;
+  }
+  .upload-zone:active { transform: scale(0.98); }
+  .upload-zone.has-file {
+    border-color: var(--gold);
+    background: rgba(245,197,24,0.05);
+  }
+  .upload-zone .uz-icon { font-size: 32px; margin-bottom: 6px; }
+  .upload-zone .uz-text {
+    font-size: 11px; font-weight: 700;
+    color: rgba(255,255,255,0.4);
+    letter-spacing: 0.5px;
+  }
+  .upload-zone .uz-text.active { color: var(--gold); }
+  .upload-zone input { display: none; }
+  .upload-preview {
+    max-width: 100%; max-height: 120px;
+    border-radius: 8px; margin-top: 8px;
+    display: none;
+  }
+  .upload-preview.visible { display: block; }
+  .dep-buttons {
+    display: flex; gap: 8px; margin-top: 4px;
+  }
+  .dep-cancel {
+    flex: 1; background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px; padding: 12px;
+    font-size: 11px; font-weight: 700;
+    color: rgba(255,255,255,0.5);
+    cursor: pointer; font-family: inherit;
+    letter-spacing: 1px;
+  }
+  .dep-submit {
+    flex: 2;
+    background: linear-gradient(135deg, var(--gold-light), var(--gold), var(--gold-dark));
+    border: none; border-radius: 12px;
+    padding: 12px; font-size: 11px; font-weight: 900;
+    color: #000; letter-spacing: 1.5px;
+    text-transform: uppercase;
+    cursor: pointer; font-family: inherit;
+    box-shadow: 0 0 16px rgba(245,197,24,0.3);
+  }
+  .dep-submit:disabled { opacity: 0.35; cursor: not-allowed; }
+  .dep-status {
+    font-size: 10px; text-align: center;
+    margin-top: 8px; min-height: 14px;
+    color: var(--gold);
+  }
+
+  /* ── Deposit history list ── */
+  .deposits-list {
+    margin-top: 8px;
+  }
+  .dep-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 10px; border-radius: 10px;
+    background: rgba(0,0,0,0.3);
+    margin-bottom: 6px;
+    font-size: 11px;
+  }
+  .dep-item .dep-info { display: flex; flex-direction: column; gap: 2px; }
+  .dep-item .dep-amt { font-weight: 800; }
+  .dep-item .dep-date { font-size: 8px; color: rgba(255,255,255,0.3); }
+  .dep-item .dep-st {
+    font-size: 8px; font-weight: 800;
+    letter-spacing: 1px; padding: 3px 8px;
+    border-radius: 8px;
+  }
+  .dep-st.pending { background: rgba(255,165,0,0.15); color: #ffa500; }
+  .dep-st.approved { background: rgba(0,200,100,0.15); color: #00c864; }
+  .dep-st.rejected { background: rgba(255,60,60,0.15); color: #ff3c3c; }
+
+
+
+
+  /* ── Profile modal ── */
+  .profile-modal {
+    position: fixed; inset: 0; z-index: 1000;
+    background: rgba(0,0,0,0.9);
+    backdrop-filter: blur(16px);
+    display: flex; flex-direction: column;
+    opacity: 1; transition: opacity 0.3s;
+    overflow-y: auto;
+  }
+  .profile-modal.hidden { opacity: 0; pointer-events: none; }
+  .profile-modal::-webkit-scrollbar { display: none; }
+
+  .profile-content {
+    padding: 16px; max-width: 480px;
+    margin: 0 auto; width: 100%;
+    min-height: 100%;
+    display: flex; flex-direction: column;
+  }
+
+  .profile-back {
+    display: flex; align-items: center; gap: 8px;
+    background: none; border: none;
+    color: var(--gold); font-size: 13px;
+    font-weight: 700; cursor: pointer;
+    font-family: inherit; letter-spacing: 1px;
+    margin-bottom: 16px; padding: 0;
+  }
+
+  .profile-top {
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 16px;
+  }
+  .profile-avatar {
+    width: 70px; height: 70px; border-radius: 50%;
+    border: 2.5px solid var(--gold);
+    box-shadow: 0 0 16px rgba(245,197,24,0.3);
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+  .profile-info { flex: 1; }
+  .profile-nick {
+    font-size: 20px; font-weight: 900;
+    letter-spacing: 0.5px; line-height: 1.1;
+  }
+  .profile-nick.vip {
+    background: linear-gradient(135deg, #fff176, #ffd700, #ff8c00);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 0 6px rgba(245,197,24,0.4));
+  }
+  .profile-rank-badge {
+    display: inline-block; margin-top: 5px;
+    border: 1.5px solid var(--border-gold);
+    border-radius: 8px; padding: 3px 10px;
+    font-size: 9px; font-weight: 800;
+    color: var(--gold); letter-spacing: 1.5px;
+  }
+  .profile-gameid {
+    font-size: 9px; color: rgba(255,255,255,0.3);
+    letter-spacing: 2px; margin-top: 4px;
+  }
+  .profile-reg-date {
+    font-size: 9px; color: rgba(255,255,255,0.25);
+    letter-spacing: 0.5px; margin-top: 2px;
+  }
+
+  /* Stats cards */
+  .profile-stats {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 8px; margin-bottom: 14px;
+  }
+  .stat-card {
+    border: 1.5px solid var(--border-gold);
+    border-radius: 14px; padding: 12px;
+    background: var(--bg-card); text-align: center;
+  }
+  .stat-card .sc-value {
+    font-size: 18px; font-weight: 900; color: var(--gold);
+    line-height: 1;
+  }
+  .stat-card .sc-label {
+    font-size: 8px; font-weight: 700;
+    color: rgba(255,255,255,0.3);
+    letter-spacing: 1.5px; text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  /* Badges / items */
+  .profile-items {
+    border: 1.5px solid var(--border-gold);
+    border-radius: 14px; padding: 12px 14px;
+    background: var(--bg-card); margin-bottom: 14px;
+  }
+  .profile-items h4 {
+    font-size: 9px; font-weight: 800;
+    color: rgba(255,255,255,0.3);
+    letter-spacing: 2px; text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .items-row {
+    display: flex; gap: 8px; flex-wrap: wrap;
+  }
+  .item-badge {
+    display: flex; align-items: center; gap: 5px;
+    border: 1px solid var(--border-gold);
+    border-radius: 10px; padding: 5px 10px;
+    font-size: 10px; font-weight: 700;
+    color: var(--gold); background: rgba(245,197,24,0.05);
+  }
+  .item-badge-empty {
+    font-size: 10px; color: rgba(255,255,255,0.2);
+    font-style: italic;
+  }
+
+  /* Add friend btn */
+  .add-friend-btn {
+    width: 100%;
+    background: rgba(245,197,24,0.08);
+    border: 1.5px solid var(--border-gold);
+    border-radius: 14px; padding: 12px;
+    font-size: 12px; font-weight: 800;
+    color: var(--gold); letter-spacing: 1px;
+    cursor: pointer; font-family: inherit;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    transition: background 0.2s;
+  }
+  .add-friend-btn:active { background: rgba(245,197,24,0.15); }
+  .add-friend-btn.is-friend {
+    color: #00c864; border-color: #00c864;
+    background: rgba(0,200,100,0.05);
+    cursor: default;
+  }
+
+  /* ── Gang tab: search by ID ── */
+  .gang-search {
+    display: flex; gap: 8px; margin-bottom: 12px;
+  }
+  .gang-search-input {
+    flex: 1; background: rgba(0,0,0,0.5);
+    border: 1.5px solid rgba(245,197,24,0.2);
+    border-radius: 12px; padding: 10px 14px;
+    color: #fff; font-size: 13px; font-weight: 700;
+    font-family: inherit; outline: none;
+    letter-spacing: 2px; text-transform: uppercase;
+    transition: border-color 0.2s;
+  }
+  .gang-search-input:focus { border-color: var(--gold); }
+  .gang-search-input::placeholder {
+    color: rgba(255,255,255,0.2);
+    font-weight: 400; letter-spacing: 0.5px; text-transform: none;
+  }
+  .gang-search-btn {
+    background: rgba(245,197,24,0.1);
+    border: 1.5px solid var(--border-gold);
+    border-radius: 12px; padding: 10px 14px;
+    font-size: 10px; font-weight: 900;
+    color: var(--gold); letter-spacing: 1px;
+    cursor: pointer; font-family: inherit;
+  }
+  .gang-search-btn:active { background: rgba(245,197,24,0.2); }
+
+  /* Gang tabs (Все / Друзья) */
+  .gang-tabs {
+    display: flex; gap: 6px; margin-bottom: 12px;
+  }
+  .gang-tab-btn {
+    flex: 1; background: rgba(0,0,0,0.3);
+    border: 1.5px solid rgba(245,197,24,0.15);
+    border-radius: 10px; padding: 8px;
+    font-size: 10px; font-weight: 800;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 1px; cursor: pointer;
+    font-family: inherit; transition: all 0.2s;
+  }
+  .gang-tab-btn.active {
+    border-color: var(--gold);
+    color: var(--gold);
+    background: rgba(245,197,24,0.05);
+  }
+
+  /* ── Spin tab ── */
+  .spin-tab {
+    flex-direction: column; align-items: center;
+    overflow-y: auto; flex: 1;
+    -webkit-overflow-scrolling: touch;
+    padding: 8px 16px 24px;
+  }
+  .spin-tab::-webkit-scrollbar { display: none; }
+
+  .spin-header { text-align: center; margin-bottom: 6px; width: 100%; }
+  .spin-header h2 {
+    font-size: 20px; font-weight: 900;
+    letter-spacing: 3px; text-transform: uppercase;
+  }
+  .spin-header .sp-sub {
+    font-size: 10px; color: rgba(255,255,255,0.3);
+    letter-spacing: 1px; margin-top: 3px;
+  }
+
+  /* Spins counter */
+  .spins-counter {
+    display: flex; align-items: center; justify-content: center;
+    gap: 6px; margin-bottom: 16px;
+  }
+  .spin-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: rgba(245,197,24,0.2);
+    border: 1.5px solid rgba(245,197,24,0.3);
+    transition: all 0.3s;
+  }
+  .spin-dot.active {
+    background: var(--gold);
+    box-shadow: 0 0 8px rgba(245,197,24,0.5);
+  }
+
+  /* Slot machine */
+  .slot-machine {
+    width: 100%; max-width: 320px;
+    border: 2px solid var(--border-gold);
+    border-radius: 20px;
+    background: rgba(0,0,0,0.5);
+    padding: 16px;
+    box-shadow: 0 0 30px rgba(245,197,24,0.08);
+    margin-bottom: 16px;
+    position: relative;
+  }
+  .slot-window {
+    display: flex; gap: 8px; justify-content: center;
+    margin-bottom: 14px; overflow: hidden;
+    height: 90px; position: relative;
+  }
+  .slot-reel {
+    flex: 1; border-radius: 12px;
+    border: 1.5px solid rgba(245,197,24,0.2);
+    background: rgba(0,0,0,0.6);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 36px; position: relative;
+    overflow: hidden; height: 90px;
+  }
+  .slot-reel .reel-inner {
+    position: absolute; width: 100%;
+    display: flex; flex-direction: column;
+    align-items: center;
+    transition: none;
+  }
+  .slot-reel .reel-item {
+    height: 90px; display: flex;
+    align-items: center; justify-content: center;
+    font-size: 36px; width: 100%;
+  }
+  .slot-line {
+    position: absolute; left: 0; right: 0;
+    top: 50%; transform: translateY(-50%);
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    opacity: 0.4; pointer-events: none;
+  }
+
+  .spin-result {
+    text-align: center; min-height: 44px;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 2px;
+  }
+  .spin-result .sr-title {
+    font-size: 14px; font-weight: 900;
+    letter-spacing: 1px;
+    opacity: 0; transition: opacity 0.3s;
+  }
+  .spin-result .sr-title.show { opacity: 1; }
+  .spin-result .sr-sub {
+    font-size: 10px; color: rgba(255,255,255,0.4);
+    opacity: 0; transition: opacity 0.3s;
+  }
+  .spin-result .sr-sub.show { opacity: 1; }
+
+  .spin-btn {
+    width: 100%;
+    background: linear-gradient(135deg, var(--gold-light), var(--gold), var(--gold-dark));
+    border: none; border-radius: 14px;
+    padding: 14px; font-size: 14px; font-weight: 900;
+    color: #000; letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer; font-family: inherit;
+    box-shadow: 0 0 20px rgba(245,197,24,0.3);
+    transition: transform 0.1s, opacity 0.2s;
+  }
+  .spin-btn:active { transform: scale(0.96); }
+  .spin-btn:disabled {
+    opacity: 0.4; cursor: not-allowed;
+    transform: none;
+  }
+  .spin-btn.spinning { animation: btn-pulse 0.4s ease infinite alternate; }
+  @keyframes btn-pulse {
+    from { box-shadow: 0 0 10px rgba(245,197,24,0.2); }
+    to { box-shadow: 0 0 30px rgba(245,197,24,0.5); }
+  }
+
+  /* Timer */
+  .spin-timer {
+    text-align: center; font-size: 11px;
+    color: rgba(255,255,255,0.3); margin-top: 8px;
+    letter-spacing: 0.5px; min-height: 16px;
+  }
+  .spin-timer span { color: var(--gold); font-weight: 700; }
+
+  /* Inventory */
+  .spin-inventory {
+    width: 100%; max-width: 320px;
+    display: flex; gap: 8px; margin-bottom: 16px;
+  }
+  .inv-item {
+    flex: 1; border: 1.5px solid var(--border-gold);
+    border-radius: 14px; padding: 10px 8px;
+    text-align: center; background: var(--bg-card);
+  }
+  .inv-icon { font-size: 24px; margin-bottom: 4px; }
+  .inv-count {
+    font-size: 18px; font-weight: 900; color: var(--gold);
+    line-height: 1;
+  }
+  .inv-label {
+    font-size: 8px; font-weight: 700;
+    color: rgba(255,255,255,0.3);
+    letter-spacing: 1px; text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  /* History */
+  .spin-history {
+    width: 100%; max-width: 320px;
+  }
+  .spin-history h3 {
+    font-size: 11px; font-weight: 800;
+    color: rgba(255,255,255,0.3);
+    letter-spacing: 2px; text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .sh-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 7px 10px; border-radius: 10px;
+    background: rgba(0,0,0,0.3); margin-bottom: 5px;
+    font-size: 11px;
+  }
+  .sh-left { display: flex; align-items: center; gap: 8px; }
+  .sh-icon { font-size: 18px; }
+  .sh-name { font-weight: 700; }
+  .sh-date { font-size: 8px; color: rgba(255,255,255,0.25); margin-top: 1px; }
+  .sh-amount { font-size: 12px; font-weight: 900; color: var(--gold); }
+
+  /* ── Shop tab ── */
+  .shop-tab {
+    flex-direction: column; gap: 0;
+    overflow-y: auto; flex: 1;
+    -webkit-overflow-scrolling: touch;
+    padding: 8px 16px 24px;
+  }
+  .shop-tab::-webkit-scrollbar { display: none; }
+  .shop-header {
+    text-align: center; margin-bottom: 12px;
+  }
+  .shop-header h2 {
+    font-size: 18px; font-weight: 900;
+    letter-spacing: 2px; text-transform: uppercase;
+  }
+  .shop-header .sh-sub {
+    font-size: 9px; color: rgba(255,255,255,0.3);
+    letter-spacing: 1px; margin-top: 2px;
+  }
+
+  .shop-item {
+    border: 1.5px solid var(--border-gold);
+    border-radius: 18px;
+    background: var(--bg-card);
+    padding: 14px 14px;
+    margin-bottom: 10px;
+    position: relative; overflow: hidden;
+  }
+  .shop-item.owned {
+    border-color: #00c864;
+    box-shadow: 0 0 16px rgba(0,200,100,0.1);
+  }
+  .shop-item-glow {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(245,197,24,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  /* Pedestal preview */
+  .pedestal-preview {
+    position: relative; height: 100px;
+    display: flex; align-items: flex-end; justify-content: center;
+    margin-bottom: 10px;
+  }
+  .pedestal-char {
+    width: 50px; height: 75px;
+    background: linear-gradient(to bottom, #555565, #3d3d4a);
+    border-radius: 8px 8px 0 0;
+    position: relative; z-index: 1;
+    box-shadow: 0 -4px 20px rgba(245,197,24,0.15);
+    overflow: hidden;
+  }
+  .pedestal-base {
+    position: absolute; bottom: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 100px; height: 18px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.3);
+    border: 2px solid var(--gold);
+    box-shadow:
+      0 0 12px rgba(245,197,24,0.6),
+      0 0 30px rgba(245,197,24,0.3),
+      0 0 60px rgba(245,197,24,0.15),
+      inset 0 0 8px rgba(245,197,24,0.2);
+    animation: pedestal-pulse 2s ease-in-out infinite;
+  }
+  @keyframes pedestal-pulse {
+    0%, 100% { box-shadow: 0 0 12px rgba(245,197,24,0.6), 0 0 30px rgba(245,197,24,0.3), 0 0 60px rgba(245,197,24,0.15), inset 0 0 8px rgba(245,197,24,0.2); }
+    50% { box-shadow: 0 0 20px rgba(245,197,24,0.9), 0 0 50px rgba(245,197,24,0.5), 0 0 90px rgba(245,197,24,0.25), inset 0 0 14px rgba(245,197,24,0.35); }
+  }
+  .pedestal-ring {
+    position: absolute; bottom: 6px; left: 50%;
+    transform: translateX(-50%);
+    width: 80px; height: 12px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(245,197,24,0.4);
+    box-shadow: 0 0 8px rgba(245,197,24,0.3);
+  }
+  .pedestal-ring2 {
+    position: absolute; bottom: 12px; left: 50%;
+    transform: translateX(-50%);
+    width: 60px; height: 8px;
+    border-radius: 50%;
+    border: 1px solid rgba(245,197,24,0.25);
+  }
+
+  /* VIP nick preview */
+  .vip-preview {
+    text-align: center; padding: 10px 0 14px;
+    position: relative;
+  }
+  .vip-name {
+    font-size: 20px; font-weight: 900;
+    background: linear-gradient(135deg, #fff176, #ffd700, #ff8c00);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 0 8px rgba(245,197,24,0.5));
+    letter-spacing: 1px;
+  }
+  .vip-icons {
+    display: flex; align-items: center; justify-content: center;
+    gap: 6px; margin-top: 4px;
+  }
+  .vip-diamond { font-size: 18px; animation: spin-slow 4s linear infinite; }
+  .vip-crown { font-size: 20px; }
+  @keyframes spin-slow {
+    0% { transform: rotate(0deg) scale(1); }
+    50% { transform: rotate(180deg) scale(1.2); }
+    100% { transform: rotate(360deg) scale(1); }
+  }
+
+  .shop-item-info { margin-bottom: 10px; }
+  .shop-item-name {
+    font-size: 15px; font-weight: 900;
+    letter-spacing: 0.5px;
+  }
+  .shop-item-desc {
+    font-size: 10px; color: rgba(255,255,255,0.4);
+    margin-top: 3px; line-height: 1.4;
+  }
+
+  .shop-buy-btn {
+    width: 100%;
+    background: linear-gradient(135deg, var(--gold-light), var(--gold), var(--gold-dark));
+    border: none; border-radius: 14px;
+    padding: 13px; font-size: 13px; font-weight: 900;
+    color: #000; letter-spacing: 1.5px;
+    text-transform: uppercase;
+    cursor: pointer; font-family: inherit;
+    box-shadow: 0 0 20px rgba(245,197,24,0.25);
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    transition: transform 0.1s;
+  }
+  .shop-buy-btn:active { transform: scale(0.97); }
+  .shop-buy-btn.owned-btn {
+    background: rgba(0,200,100,0.15);
+    border: 1.5px solid #00c864;
+    color: #00c864;
+    box-shadow: none;
+    cursor: default;
+  }
+  .star-icon { font-size: 16px; }
+  .owned-badge {
+    position: absolute; top: 14px; right: 14px;
+    background: rgba(0,200,100,0.15);
+    border: 1px solid #00c864;
+    border-radius: 10px;
+    padding: 3px 10px;
+    font-size: 9px; font-weight: 800;
+    color: #00c864; letter-spacing: 1px;
+  }
+
+  /* ── Animations ── */
+  @keyframes glow-pulse {
+    0%, 100% { opacity: 0.06; }
+    50% { opacity: 0.12; }
+  }
+  .bg-glow { animation: glow-pulse 4s ease-in-out infinite; }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+</style>
+</head>
+<body>
+
+<!-- Goal bonus toast -->
+<div id="goal-toast" class="goal-toast">
+  <div class="gt-title">🎯 ЦЕЛЬ ВЫПОЛНЕНА</div>
+  <div class="gt-amount">+100,000 $CHLG</div>
+
+</div>
+
+<!-- Background layers -->
+<div class="bg-layer bg-glow"></div>
+<div id="rank-bg" class="rank-bg"></div>
+
+
+
+
+<!-- Profile Modal -->
+<div id="profile-modal" class="profile-modal hidden">
+  <div class="profile-content">
+    <button class="profile-back" onclick="closeProfile()">← НАЗАД</button>
+
+    <div class="profile-top">
+      <img id="pm-avatar" class="profile-avatar" src="" alt="">
+      <div class="profile-info">
+        <div id="pm-nick" class="profile-nick"></div>
+        <div id="pm-rank" class="profile-rank-badge"></div>
+        <div id="pm-gameid" class="profile-gameid"></div>
+        <div id="pm-regdate" class="profile-reg-date"></div>
+      </div>
+    </div>
+
+    <div class="profile-stats">
+      <div class="stat-card">
+        <div id="pm-tokens" class="sc-value">0</div>
+        <div class="sc-label">$CHLG токены</div>
+      </div>
+      <div class="stat-card">
+        <div id="pm-dollars" class="sc-value">$0</div>
+        <div class="sc-label">Заработано</div>
+      </div>
+      <div class="stat-card">
+        <div id="pm-shields" class="sc-value">0</div>
+        <div class="sc-label">Щитов</div>
+      </div>
+      <div class="stat-card">
+        <div id="pm-hammers" class="sc-value">0</div>
+        <div class="sc-label">Кувалд</div>
+      </div>
+    </div>
+
+    <div class="profile-items">
+      <h4>Предметы магазина</h4>
+      <div id="pm-items" class="items-row"></div>
+    </div>
+
+    <button id="pm-friend-btn" class="add-friend-btn" onclick="toggleFriend()">
+      ➕ Добавить в друзья
+    </button>
+  </div>
+</div>
+
+<div class="app-container">
+
+  <!-- ═══ HOME TAB ═══ -->
+  <div id="tab-home" class="tab active" style="display:flex;flex-direction:column;height:100%;">
+
+    <!-- Header -->
+    <div class="header">
+      <img id="user-avatar" class="avatar" src="" alt="">
+      <div style="flex:1;">
+        <div id="user-name" class="user-name">Загрузка...</div>
+        <div id="rank-badge" class="rank-badge">РАНГ: ...</div>
+        <div class="token-row">
+          <div class="token-badge">
+            <div class="token-icon">$</div>
+            <span id="token-amount" class="token-amount">0 CHLG</span>
+          </div>
+          <span id="game-id-display" class="game-id-badge"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Middle area with character and buttons -->
+    <div class="middle-area">
+      <!-- Background candlestick chart -->
+      <svg class="bg-chart" viewBox="0 0 400 200" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <g stroke="rgba(245,197,24,0.6)" stroke-width="1.5">
+          <line x1="30" y1="140" x2="30" y2="80"/><rect x="25" y="90" width="10" height="30" fill="rgba(245,197,24,0.3)"/>
+          <line x1="60" y1="150" x2="60" y2="70"/><rect x="55" y="80" width="10" height="40" fill="rgba(245,197,24,0.3)"/>
+          <line x1="90" y1="130" x2="90" y2="50"/><rect x="85" y="60" width="10" height="40" fill="rgba(245,197,24,0.3)"/>
+          <line x1="120" y1="140" x2="120" y2="60"/><rect x="115" y="75" width="10" height="35" fill="rgba(245,197,24,0.3)"/>
+          <line x1="150" y1="120" x2="150" y2="40"/><rect x="145" y="50" width="10" height="40" fill="rgba(245,197,24,0.3)"/>
+          <line x1="180" y1="130" x2="180" y2="55"/><rect x="175" y="65" width="10" height="35" fill="rgba(245,197,24,0.3)"/>
+          <line x1="210" y1="100" x2="210" y2="30"/><rect x="205" y="40" width="10" height="35" fill="rgba(245,197,24,0.3)"/>
+          <line x1="240" y1="110" x2="240" y2="25"/><rect x="235" y="35" width="10" height="40" fill="rgba(245,197,24,0.3)"/>
+          <line x1="270" y1="90" x2="270" y2="15"/><rect x="265" y="20" width="10" height="40" fill="rgba(245,197,24,0.3)"/>
+          <line x1="300" y1="80" x2="300" y2="10"/><rect x="295" y="15" width="10" height="35" fill="rgba(245,197,24,0.3)"/>
+          <line x1="330" y1="70" x2="330" y2="5"/><rect x="325" y="10" width="10" height="30" fill="rgba(245,197,24,0.3)"/>
+          <line x1="360" y1="75" x2="360" y2="8"/><rect x="355" y="12" width="10" height="35" fill="rgba(245,197,24,0.3)"/>
+        </g>
+        <!-- Uptrend arrow line -->
+        <polyline points="20,160 80,110 140,90 200,60 260,35 340,10" stroke="rgba(245,197,24,0.5)" stroke-width="2" fill="none"/>
+        <polygon points="340,10 330,20 335,10 325,14" fill="rgba(245,197,24,0.5)"/>
+      </svg>
+
+<div class="character-wrap">
+        <img id="rank-character" src="zavod.png" alt="">
+        <!-- Golden platform rings (overlay below character) -->
+        <svg style="position:absolute;bottom:2%;left:50%;transform:translateX(-50%);width:70%;max-width:280px;height:auto;" viewBox="0 0 280 50" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="140" cy="40" rx="130" ry="14" fill="none" stroke="rgba(245,197,24,0.12)" stroke-width="1"/>
+          <ellipse cx="140" cy="35" rx="110" ry="12" fill="none" stroke="rgba(245,197,24,0.2)" stroke-width="1.5"/>
+          <ellipse cx="140" cy="30" rx="90" ry="10" fill="none" stroke="rgba(245,197,24,0.35)" stroke-width="1.5"/>
+          <ellipse cx="140" cy="25" rx="70" ry="8" fill="none" stroke="rgba(245,197,24,0.55)" stroke-width="2"/>
+          <ellipse cx="140" cy="25" rx="75" ry="10" fill="url(#pg)" opacity="0.5"/>
+          <defs><radialGradient id="pg" cx="50%" cy="50%"><stop offset="0%" stop-color="#F5C518" stop-opacity="0.35"/><stop offset="100%" stop-color="#F5C518" stop-opacity="0"/></radialGradient></defs>
+        </svg>
+      </div>
+
+      <!-- Side buttons -->
+      <div class="side-left">
+        <button class="side-btn" onclick="switchTab('tab-shop')">
+          <span class="icon">🛒</span>
+          <span class="label">Магазин</span>
+        </button>
+        <button class="side-btn" onclick="alert('Задания скоро!')">
+          <span class="icon">📋</span>
+          <span class="label">Задание</span>
+        </button>
+      </div>
+
+      <div class="side-right">
+        <div class="days-box">
+          <div class="lbl">До конца</div>
+          <div id="days-num" class="num">29</div>
+          <div class="unit">дней</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom panel -->
+    <div class="bottom-panel">
+      <div class="input-row">
+        <!-- Progress circle -->
+        <div class="progress-circle">
+          <svg viewBox="0 0 56 56">
+            <circle cx="28" cy="28" r="24" fill="none" stroke="rgba(245,197,24,0.12)" stroke-width="3"/>
+            <circle id="progress-ring" cx="28" cy="28" r="24" fill="none"
+              stroke="url(#ring-grad)" stroke-width="3"
+              stroke-dasharray="150.8" stroke-dashoffset="150.8"
+              stroke-linecap="round"
+              transform="rotate(-90 28 28)"
+              style="transition: stroke-dashoffset 0.8s ease-out;"/>
+            <defs>
+              <linearGradient id="ring-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="var(--gold-light)"/>
+                <stop offset="100%" stop-color="var(--gold-dark)"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <div class="inner">
+            <span id="circle-amount" class="amount">$0</span>
+            <span id="circle-goal" class="of">ИЗ $1,000</span>
+          </div>
+        </div>
+
+        <!-- Input -->
+        <div class="money-input-wrap">
+          <span class="dollar-sign">$</span>
+          <input id="money-input" class="money-input" type="number" inputmode="decimal" placeholder="0.00" step="0.01">
+        </div>
+
+        <!-- Add button -->
+        <button id="add-btn" class="add-btn">ДОБАВИТЬ</button>
+      </div>
+
+      <div class="bottom-strip">
+        <div id="bottom-days" class="bottom-strip-inner">ДО КОНЦА 29 ДНЕЙ</div>
+         <span id="pending-count">0</span> НА ПРОВЕРКЕ</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ RANKS TAB ═══ -->
+  <div id="tab-ranks" class="tab ranks-tab" style="display:none;"></div>
+
+  <!-- ═══ GANG TAB ═══ -->
+  <div id="tab-gang" class="tab gang-tab">
+    <!-- Search by ID -->
+    <div class="gang-search">
+      <input id="gang-search-input" class="gang-search-input" type="text" placeholder="Поиск по ID игрока" maxlength="6" autocomplete="off">
+      <button id="gang-search-btn" class="gang-search-btn">НАЙТИ</button>
+    </div>
+    <!-- Sub-tabs -->
+    <div class="gang-tabs">
+      <button class="gang-tab-btn active" id="gtab-all" onclick="switchGangTab('all')">🌍 Все игроки</button>
+      <button class="gang-tab-btn" id="gtab-friends" onclick="switchGangTab('friends')">👥 Друзья</button>
+    </div>
+    <div id="gang-list"></div>
+  </div>
+
+  <!-- ═══ SPIN TAB ═══ -->
+  <div id="tab-spin" class="tab spin-tab">
+    <div class="spin-header">
+      <h2>🎰 <span style="color:var(--gold);">Рулетка</span></h2>
+      <div class="sp-sub">5 БЕСПЛАТНЫХ СПИНОВ КАЖДЫЕ 2 ЧАСА</div>
+    </div>
+
+    <!-- Spins dots -->
+    <div class="spins-counter" id="spins-dots"></div>
+
+    <!-- Inventory -->
+    <div class="spin-inventory">
+      <div class="inv-item">
+        <div class="inv-icon">🪙</div>
+        <div id="inv-tokens" class="inv-count">0</div>
+        <div class="inv-label">$CHLG</div>
+      </div>
+      <div class="inv-item">
+        <div class="inv-icon">🛡️</div>
+        <div id="inv-shields" class="inv-count">0</div>
+        <div class="inv-label">Щитов</div>
+      </div>
+      <div class="inv-item">
+        <div class="inv-icon">🔨</div>
+        <div id="inv-hammers" class="inv-count">0</div>
+        <div class="inv-label">Кувалд</div>
+      </div>
+    </div>
+
+    <!-- Slot machine -->
+    <div class="slot-machine">
+      <div class="slot-window">
+        <div class="slot-reel" id="reel-0">
+          <div class="reel-inner" id="reel-inner-0"></div>
+        </div>
+        <div class="slot-reel" id="reel-1">
+          <div class="reel-inner" id="reel-inner-1"></div>
+        </div>
+        <div class="slot-reel" id="reel-2">
+          <div class="reel-inner" id="reel-inner-2"></div>
+        </div>
+        <div class="slot-line"></div>
+      </div>
+      <div class="spin-result">
+        <div id="sr-title" class="sr-title"></div>
+        <div id="sr-sub" class="sr-sub"></div>
+      </div>
+    </div>
+
+    <button id="spin-btn" class="spin-btn">🎰 КРУТИТЬ</button>
+    <div id="spin-timer" class="spin-timer"></div>
+
+    <!-- History -->
+    <div class="spin-history" id="spin-history-wrap" style="margin-top:16px;">
+      <h3>История спинов</h3>
+      <div id="spin-history-list"></div>
+    </div>
+  </div>
+
+  <!-- ═══ SHOP TAB ═══ -->
+  <div id="tab-shop" class="tab shop-tab">
+    <div class="shop-header">
+      <h2>🛒 <span style="color:var(--gold);">Магазин</span></h2>
+      <div class="sh-sub">ПОКУПКИ ЗА ЗВЁЗДЫ TELEGRAM</div>
+    </div>
+
+    <!-- Item 1: Neon Pedestal -->
+    <div id="shop-pedestal" class="shop-item">
+      <div class="shop-item-glow"></div>
+      <div class="pedestal-preview">
+        <div class="pedestal-char">
+          <img id="pedestal-char-img" src="zavod.png" alt="" style="width:100%;height:100%;object-fit:cover;object-position:top;">
+        </div>
+        <div class="pedestal-ring2"></div>
+        <div class="pedestal-ring"></div>
+        <div class="pedestal-base"></div>
+      </div>
+      <div class="shop-item-info">
+        <div class="shop-item-name">⚡ Неоновая подставка</div>
+        <div class="shop-item-desc">Золотое неоновое кольцо под персонажем. Выделяет тебя среди других игроков в рейтинге и на профиле.</div>
+      </div>
+      <button id="buy-pedestal" class="shop-buy-btn">
+        <span class="star-icon">⭐</span>
+        <span>399 ЗВЁЗД</span>
+      </button>
+    </div>
+
+    <!-- Item 2: VIP Nick -->
+    <div id="shop-vip" class="shop-item">
+      <div class="shop-item-glow"></div>
+      <div class="vip-preview">
+        <div class="vip-name" id="vip-name-preview">ТВОЙ НИК</div>
+        <div class="vip-icons">
+          <span class="vip-diamond">💎</span>
+          <span class="vip-crown">👑</span>
+          <span class="vip-diamond">💎</span>
+        </div>
+      </div>
+      <div class="shop-item-info">
+        <div class="shop-item-name">👑 VIP Никнейм</div>
+        <div class="shop-item-desc">Золотой градиентный ник с алмазом 💎 и венком 👑 в рейтинге. Выделяет тебя на весь список.</div>
+      </div>
+      <button id="buy-vip" class="shop-buy-btn">
+        <span class="star-icon">⭐</span>
+        <span>699 ЗВЁЗД</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══ NAV ═══ -->
+  <nav class="bottom-nav">
+    <button class="nav-btn active" data-tab="tab-home">
+      <span class="nav-icon">🎯</span>
+      <span class="nav-label">Главная</span>
+    </button>
+    <button class="nav-btn" data-tab="tab-ranks">
+      <span class="nav-icon">🏆</span>
+      <span class="nav-label">Ранги</span>
+    </button>
+    <button class="nav-btn" data-tab="tab-spin">
+      <span class="nav-icon">🎰</span>
+      <span class="nav-label">Рулетка</span>
+    </button>
+    <button class="nav-btn" data-tab="tab-shop">
+      <span class="nav-icon">🛒</span>
+      <span class="nav-label">Магазин</span>
+    </button>
+    <button class="nav-btn" data-tab="tab-gang">
+      <span class="nav-icon">🤝</span>
+      <span class="nav-label">Братва</span>
+    </button>
+  </nav>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+
+// ══════════════════════════════════════
+// ── Config ──
+// ══════════════════════════════════════
+const SUPABASE_URL = 'https://uresoeomjktulhidwekf.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_tO9GrtFjkPs5qkg6wMnEwg_Z5g0U_eY';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const BACKEND_URL = 'https://challenge-server-s0ds.onrender.com';
+
+// ── Telegram WebApp init ──
+const tg = window.Telegram?.WebApp;
+if (tg) {
+  tg.expand();
+  tg.ready();
+  tg.setHeaderColor('#0a0e1a');
+  tg.setBackgroundColor('#0a0e1a');
+  // Disable vertical swipes to prevent accidental close
+  if (tg.disableVerticalSwipes) tg.disableVerticalSwipes();
+}
+
+// ── Current user state ──
+let totalEarned = 0;
+let coinsChlg = 0;
+let currentUserId = null;
+let currentUserName = 'Участник';
+let currentUserPhoto = null;
+let currentLogin = null;
+let currentGameId = null;
+let isRegistered = false;
+
+// ══════════════════════════════════════
+// ── Rank system ──
+// ══════════════════════════════════════
+const ranks = [
+  { icon: '🦈', name: 'Мегалодон',     req: 1000000, img: 'general.png' },
+  { icon: '🎩', name: 'Rockefeller',    req: 500000,  img: 'colonel.png' },
+  { icon: '🧖‍♂', name: 'Божество',       req: 200000,  img: 'lt_colonel.png' },
+  { icon: '🚀', name: 'The Elon Musk',  req: 150000,  img: 'major.png' },
+  { icon: '😮‍💨', name: 'Сигма',          req: 100000,  img: 'captain.png' },
+  { icon: '🏋️‍♂️', name: 'На химии',       req: 50000,   img: 'sr_lieutenant.png' },
+  { icon: '🚘', name: 'Машина',         req: 20000,   img: 'lieutenant.png' },
+  { icon: '👍', name: 'Чел харош',      req: 10000,   img: 'warrant.png' },
+  { icon: '🤖', name: 'Бот',            req: 5000,    img: 'sergeant.png' },
+  { icon: '🐚', name: 'Безхребетный',   req: 3000,    img: 'jr_sergeant.png' },
+  { icon: '🥃', name: 'Алкоголик',      req: 1000,    img: 'corporal.png' },
+  { icon: '🏭', name: 'Заводчанин',     req: 0,       img: 'zavod.png' },
+];
+
+function getRank(dollars) {
+  for (const r of ranks) if (dollars >= r.req) return r;
+  return ranks[ranks.length - 1];
+}
+
+function formatTokens(n) {
+  if (n >= 1000000) return (n / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+  if (n >= 1000) return (n / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+  return String(n);
+}
+
+// ══════════════════════════════════════
+// ── Rank backgrounds (SVG silhouettes) ──
+// ══════════════════════════════════════
+const rankBGs = {
+  'Заводчанин': `<svg viewBox="0 0 480 500" xmlns="http://www.w3.org/2000/svg" fill="#F5C518">
+    <!-- === GROUND === -->
+    <rect x="0" y="460" width="480" height="40" opacity="0.15"/>
+    <rect x="0" y="455" width="480" height="6" rx="1" opacity="0.25"/>
+
+    <!-- === MAIN FACTORY BUILDING (center-left) === -->
+    <rect x="60" y="260" width="180" height="200" opacity="0.35"/>
+    <!-- Roof saw-tooth -->
+    <polygon points="60,260 100,230 100,260" opacity="0.3"/>
+    <polygon points="100,260 140,230 140,260" opacity="0.3"/>
+    <polygon points="140,260 180,230 180,260" opacity="0.3"/>
+    <polygon points="180,260 220,230 220,260" opacity="0.3"/>
+    <rect x="60" y="258" width="180" height="4" opacity="0.4"/>
+    <!-- Factory windows (rows) -->
+    <rect x="72" y="280" width="22" height="28" rx="1" fill="#0a0e1a" opacity="0.45"/>
+    <rect x="102" y="280" width="22" height="28" rx="1" fill="#0a0e1a" opacity="0.45"/>
+    <rect x="132" y="280" width="22" height="28" rx="1" fill="#0a0e1a" opacity="0.45"/>
+    <rect x="162" y="280" width="22" height="28" rx="1" fill="#0a0e1a" opacity="0.45"/>
+    <rect x="196" y="280" width="22" height="28" rx="1" fill="#0a0e1a" opacity="0.45"/>
+    <rect x="72" y="325" width="22" height="28" rx="1" fill="#0a0e1a" opacity="0.45"/>
+    <rect x="102" y="325" width="22" height="28" rx="1" fill="#0a0e1a" opacity="0.45"/>
+    <rect x="132" y="325" width="22" height="28" rx="1" fill="#0a0e1a" opacity="0.45"/>
+    <rect x="162" y="325" width="22" height="28" rx="1" fill="#0a0e1a" opacity="0.45"/>
+    <rect x="196" y="325" width="22" height="28" rx="1" fill="#0a0e1a" opacity="0.45"/>
+    <rect x="72" y="370" width="22" height="28" rx="1" fill="#0a0e1a" opacity="0.45"/>
+    <rect x="102" y="370" width="22" height="28" rx="1" fill="#0a0e1a" opacity="0.45"/>
+    <rect x="132" y="370" width="22" height="28" rx="1" fill="#0a0e1a" opacity="0.45"/>
+    <rect x="162" y="370" width="22" height="28" rx="1" fill="#0a0e1a" opacity="0.45"/>
+    <rect x="196" y="370" width="22" height="28" rx="1" fill="#0a0e1a" opacity="0.45"/>
+    <!-- Big gate -->
+    <rect x="115" y="410" width="50" height="50" rx="2" fill="#0a0e1a" opacity="0.5"/>
+    <path d="M115,410 Q140,400 165,410" fill="#0a0e1a" opacity="0.4"/>
+
+    <!-- === TALL CHIMNEY 1 (far left) === -->
+    <rect x="10" y="80" width="22" height="380" opacity="0.4"/>
+    <rect x="5" y="75" width="32" height="10" rx="1" opacity="0.45"/>
+    <rect x="8" y="60" width="26" height="18" opacity="0.35"/>
+    <!-- Chimney rings -->
+    <rect x="7" y="140" width="28" height="4" rx="1" opacity="0.3"/>
+    <rect x="7" y="220" width="28" height="4" rx="1" opacity="0.3"/>
+    <rect x="7" y="300" width="28" height="4" rx="1" opacity="0.3"/>
+    <!-- Smoke -->
+    <circle cx="21" cy="45" r="14" opacity="0.2"/>
+    <circle cx="30" cy="25" r="18" opacity="0.15"/>
+    <circle cx="18" cy="8" r="12" opacity="0.1"/>
+    <circle cx="38" cy="5" r="10" opacity="0.08"/>
+    <circle cx="12" cy="-8" r="8" opacity="0.06"/>
+
+    <!-- === TALL CHIMNEY 2 === -->
+    <rect x="45" y="120" width="18" height="340" opacity="0.35"/>
+    <rect x="41" y="115" width="26" height="8" rx="1" opacity="0.4"/>
+    <!-- Smoke -->
+    <circle cx="54" cy="100" r="11" opacity="0.18"/>
+    <circle cx="60" cy="80" r="14" opacity="0.12"/>
+    <circle cx="50" cy="60" r="10" opacity="0.08"/>
+
+    <!-- === BOILER HOUSE (right of main) === -->
+    <rect x="250" y="300" width="80" height="160" opacity="0.3"/>
+    <rect x="250" y="295" width="80" height="8" rx="1" opacity="0.35"/>
+    <!-- Chimney on boiler -->
+    <rect x="275" y="180" width="16" height="118" opacity="0.38"/>
+    <rect x="271" y="175" width="24" height="8" rx="1" opacity="0.4"/>
+    <!-- Smoke -->
+    <circle cx="283" cy="158" r="12" opacity="0.18"/>
+    <circle cx="290" cy="138" r="15" opacity="0.12"/>
+    <circle cx="278" cy="118" r="10" opacity="0.08"/>
+    <circle cx="295" cy="105" r="8" opacity="0.06"/>
+    <!-- Boiler windows -->
+    <rect x="258" y="320" width="18" height="22" rx="1" fill="#0a0e1a" opacity="0.4"/>
+    <rect x="284" y="320" width="18" height="22" rx="1" fill="#0a0e1a" opacity="0.4"/>
+    <rect x="310" y="320" width="12" height="22" rx="1" fill="#0a0e1a" opacity="0.4"/>
+    <rect x="258" y="360" width="18" height="22" rx="1" fill="#0a0e1a" opacity="0.4"/>
+    <rect x="284" y="360" width="18" height="22" rx="1" fill="#0a0e1a" opacity="0.4"/>
+
+    <!-- === COOLING TOWERS (right side) === -->
+    <path d="M360,460 Q345,380 355,320 Q365,280 380,260 Q395,280 405,320 Q415,380 400,460Z" opacity="0.3"/>
+    <ellipse cx="380" cy="260" rx="22" ry="8" opacity="0.35"/>
+    <!-- Steam from cooling tower -->
+    <circle cx="380" cy="240" r="16" opacity="0.12"/>
+    <circle cx="375" cy="218" r="20" opacity="0.08"/>
+    <circle cx="388" cy="195" r="15" opacity="0.06"/>
+    <circle cx="378" cy="178" r="12" opacity="0.04"/>
+
+    <!-- === TALL STRUCTURE / DISTILLATION COLUMN === -->
+    <rect x="428" y="140" width="14" height="320" opacity="0.35"/>
+    <rect x="424" y="135" width="22" height="8" rx="1" opacity="0.4"/>
+    <!-- Platforms -->
+    <rect x="420" y="200" width="30" height="3" opacity="0.3"/>
+    <rect x="418" y="250" width="34" height="3" opacity="0.3"/>
+    <rect x="420" y="310" width="30" height="3" opacity="0.3"/>
+    <rect x="418" y="370" width="34" height="3" opacity="0.3"/>
+    <!-- Ladder -->
+    <line x1="442" y1="140" x2="442" y2="460" stroke="#F5C518" stroke-width="1.5" opacity="0.2"/>
+    <line x1="448" y1="140" x2="448" y2="460" stroke="#F5C518" stroke-width="1.5" opacity="0.2"/>
+
+    <!-- === STORAGE TANKS === -->
+    <ellipse cx="460" cy="380" rx="20" ry="8" opacity="0.25"/>
+    <rect x="440" y="380" width="40" height="80" rx="2" opacity="0.25"/>
+    <ellipse cx="460" cy="460" rx="20" ry="6" opacity="0.2"/>
+
+    <!-- === PIPELINES (connecting buildings) === -->
+    <!-- Horizontal pipes -->
+    <rect x="38" y="310" width="22" height="4" rx="2" opacity="0.25"/>
+    <rect x="240" y="340" width="10" height="4" rx="2" opacity="0.25"/>
+    <path d="M330,335 L360,335 Q370,335 370,345 L370,380" stroke="#F5C518" stroke-width="4" fill="none" opacity="0.2" stroke-linecap="round"/>
+    <path d="M300,180 L320,180 L320,210 L350,210" stroke="#F5C518" stroke-width="3" fill="none" opacity="0.18" stroke-linecap="round"/>
+    <path d="M420,280 L428,280" stroke="#F5C518" stroke-width="4" fill="none" opacity="0.2"/>
+    <!-- Vertical pipe with valve -->
+    <rect x="340" y="430" width="5" height="30" opacity="0.2"/>
+    <circle cx="342" cy="425" r="6" fill="none" stroke="#F5C518" stroke-width="2" opacity="0.2"/>
+
+    <!-- === CRANE (far right background) === -->
+    <rect x="465" y="200" width="5" height="260" opacity="0.2"/>
+    <rect x="440" y="196" width="35" height="5" opacity="0.2"/>
+    <line x1="440" y1="201" x2="440" y2="300" stroke="#F5C518" stroke-width="1" opacity="0.12"/>
+    <line x1="455" y1="201" x2="455" y2="280" stroke="#F5C518" stroke-width="1" opacity="0.12"/>
+    <!-- Cable -->
+    <line x1="442" y1="201" x2="442" y2="260" stroke="#F5C518" stroke-width="1" opacity="0.15"/>
+    <rect x="438" y="258" width="8" height="10" rx="1" opacity="0.15"/>
+
+    <!-- === POWER LINES === -->
+    <rect x="0" y="410" width="3" height="50" opacity="0.15"/>
+    <path d="M1,412 Q60,405 120,412" stroke="#F5C518" stroke-width="1" fill="none" opacity="0.1"/>
+    <path d="M1,418 Q60,411 120,418" stroke="#F5C518" stroke-width="1" fill="none" opacity="0.1"/>
+
+    <!-- === GLOWING WINDOWS (warm spots) === -->
+    <rect x="74" y="282" width="18" height="24" rx="1" opacity="0.08" fill="#FFD700"/>
+    <rect x="134" y="327" width="18" height="24" rx="1" opacity="0.06" fill="#FFD700"/>
+    <rect x="198" y="372" width="18" height="24" rx="1" opacity="0.07" fill="#FFD700"/>
+  </svg>`,
+
+  'Алкоголик': `<svg viewBox="0 0 480 400" xmlns="http://www.w3.org/2000/svg" fill="#F5C518">
+    <!-- Bar counter -->
+    <rect x="0" y="300" width="480" height="8" rx="2"/>
+    <rect x="10" y="308" width="460" height="92"/>
+    <!-- Bottles -->
+    <rect x="40" y="230" width="16" height="70" rx="3"/>
+    <circle cx="48" cy="225" r="8"/>
+    <rect x="75" y="240" width="14" height="60" rx="3"/>
+    <ellipse cx="82" cy="235" rx="7" ry="6"/>
+    <rect x="108" y="220" width="18" height="80" rx="3"/>
+    <circle cx="117" cy="215" r="9"/>
+    <rect x="150" y="245" width="12" height="55" rx="3"/>
+    <ellipse cx="156" cy="240" rx="6" ry="5"/>
+    <!-- Glasses -->
+    <path d="M200,295 L205,260 L225,260 L230,295Z" opacity="0.7"/>
+    <rect x="210" y="255" width="10" height="5" rx="1"/>
+    <path d="M260,290 L268,250 L292,250 L300,290Z" opacity="0.6"/>
+    <rect x="273" y="245" width="14" height="5" rx="1"/>
+    <!-- Shelf -->
+    <rect x="330" y="190" width="140" height="4"/>
+    <rect x="345" y="130" width="14" height="60" rx="2"/>
+    <circle cx="352" cy="125" r="7"/>
+    <rect x="375" y="140" width="16" height="50" rx="2"/>
+    <circle cx="383" cy="135" r="8"/>
+    <rect x="410" y="145" width="12" height="45" rx="2"/>
+    <ellipse cx="416" cy="140" rx="6" ry="5"/>
+    <rect x="440" y="135" width="14" height="55" rx="2"/>
+    <circle cx="447" cy="130" r="7"/>
+    <!-- Bar stools -->
+    <rect x="60" y="350" width="4" height="45"/>
+    <rect x="90" y="350" width="4" height="45"/>
+    <rect x="55" y="345" width="44" height="6" rx="3"/>
+    <rect x="180" y="350" width="4" height="45"/>
+    <rect x="210" y="350" width="4" height="45"/>
+    <rect x="175" y="345" width="44" height="6" rx="3"/>
+  </svg>`,
+
+  'Безхребетный': `<svg viewBox="0 0 480 400" xmlns="http://www.w3.org/2000/svg" fill="#F5C518">
+    <!-- Desert landscape -->
+    <ellipse cx="240" cy="400" rx="300" ry="30" opacity="0.3"/>
+    <!-- Sand dunes -->
+    <path d="M0,380 Q80,340 160,370 Q240,330 320,365 Q400,335 480,360 L480,400 L0,400Z" opacity="0.25"/>
+    <path d="M0,390 Q120,360 240,385 Q360,355 480,380 L480,400 L0,400Z" opacity="0.15"/>
+    <!-- Dead tree -->
+    <rect x="100" y="280" width="6" height="100"/>
+    <line x1="103" y1="300" x2="75" y2="270" stroke="#F5C518" stroke-width="4"/>
+    <line x1="103" y1="310" x2="130" y2="280" stroke="#F5C518" stroke-width="3"/>
+    <line x1="103" y1="330" x2="80" y2="315" stroke="#F5C518" stroke-width="3"/>
+    <!-- Tumbleweed -->
+    <circle cx="300" cy="360" r="20" fill="none" stroke="#F5C518" stroke-width="2" opacity="0.5"/>
+    <circle cx="300" cy="360" r="14" fill="none" stroke="#F5C518" stroke-width="1.5" opacity="0.3"/>
+    <circle cx="300" cy="360" r="8" fill="none" stroke="#F5C518" stroke-width="1" opacity="0.2"/>
+    <!-- Cactus -->
+    <rect x="380" y="300" width="12" height="80" rx="6"/>
+    <path d="M386,330 L386,310 Q370,310 370,325 L370,340" fill="none" stroke="#F5C518" stroke-width="6" stroke-linecap="round"/>
+    <path d="M386,340 L386,325 Q400,325 400,340 L400,350" fill="none" stroke="#F5C518" stroke-width="5" stroke-linecap="round"/>
+    <!-- Sun -->
+    <circle cx="420" cy="80" r="30" opacity="0.2"/>
+    <circle cx="420" cy="80" r="40" fill="none" stroke="#F5C518" stroke-width="1" opacity="0.1"/>
+  </svg>`,
+
+  'Бот': `<svg viewBox="0 0 480 400" xmlns="http://www.w3.org/2000/svg" fill="#F5C518">
+    <!-- Server racks -->
+    <rect x="20" y="150" width="60" height="250" rx="3" opacity="0.5"/>
+    <rect x="28" y="165" width="44" height="8" rx="1" opacity="0.3"/>
+    <rect x="28" y="185" width="44" height="8" rx="1" opacity="0.3"/>
+    <rect x="28" y="205" width="44" height="8" rx="1" opacity="0.3"/>
+    <rect x="28" y="225" width="44" height="8" rx="1" opacity="0.3"/>
+    <circle cx="65" cy="169" r="3" opacity="0.8"/>
+    <circle cx="65" cy="189" r="3" opacity="0.8"/>
+    <circle cx="65" cy="209" r="3" opacity="0.8"/>
+    <rect x="100" y="180" width="55" height="220" rx="3" opacity="0.4"/>
+    <rect x="108" y="195" width="39" height="8" rx="1" opacity="0.3"/>
+    <rect x="108" y="215" width="39" height="8" rx="1" opacity="0.3"/>
+    <rect x="108" y="235" width="39" height="8" rx="1" opacity="0.3"/>
+    <circle cx="140" cy="199" r="3" opacity="0.8"/>
+    <circle cx="140" cy="219" r="3" opacity="0.8"/>
+    <!-- Circuit board lines -->
+    <path d="M180,300 L220,300 L220,250 L280,250" stroke="#F5C518" stroke-width="2" fill="none" opacity="0.3"/>
+    <path d="M180,330 L250,330 L250,280 L310,280 L310,250" stroke="#F5C518" stroke-width="2" fill="none" opacity="0.25"/>
+    <path d="M300,350 L350,350 L350,300 L400,300" stroke="#F5C518" stroke-width="2" fill="none" opacity="0.2"/>
+    <circle cx="280" cy="250" r="4" opacity="0.5"/>
+    <circle cx="310" cy="250" r="4" opacity="0.5"/>
+    <circle cx="400" cy="300" r="4" opacity="0.4"/>
+    <!-- Binary rain effect -->
+    <text x="350" y="160" font-size="10" opacity="0.15" font-family="monospace">101</text>
+    <text x="380" y="180" font-size="10" opacity="0.12" font-family="monospace">010</text>
+    <text x="400" y="140" font-size="10" opacity="0.1" font-family="monospace">110</text>
+    <text x="420" y="200" font-size="10" opacity="0.15" font-family="monospace">011</text>
+    <text x="350" y="220" font-size="10" opacity="0.1" font-family="monospace">100</text>
+    <!-- More racks right -->
+    <rect x="400" y="160" width="60" height="240" rx="3" opacity="0.35"/>
+    <rect x="408" y="175" width="44" height="8" rx="1" opacity="0.3"/>
+    <rect x="408" y="195" width="44" height="8" rx="1" opacity="0.3"/>
+    <rect x="408" y="215" width="44" height="8" rx="1" opacity="0.3"/>
+    <circle cx="445" cy="179" r="3" opacity="0.8"/>
+    <circle cx="445" cy="199" r="3" opacity="0.8"/>
+  </svg>`,
+
+  'Чел харош': `<svg viewBox="0 0 480 400" xmlns="http://www.w3.org/2000/svg" fill="#F5C518">
+    <!-- City buildings -->
+    <rect x="10" y="200" width="50" height="200"/>
+    <rect x="15" y="215" width="12" height="15" rx="1" fill="#0a0e1a" opacity="0.5"/>
+    <rect x="35" y="215" width="12" height="15" rx="1" fill="#0a0e1a" opacity="0.5"/>
+    <rect x="15" y="245" width="12" height="15" rx="1" fill="#0a0e1a" opacity="0.5"/>
+    <rect x="35" y="245" width="12" height="15" rx="1" fill="#0a0e1a" opacity="0.5"/>
+    <rect x="70" y="240" width="45" height="160"/>
+    <rect x="75" y="255" width="10" height="12" rx="1" fill="#0a0e1a" opacity="0.5"/>
+    <rect x="95" y="255" width="10" height="12" rx="1" fill="#0a0e1a" opacity="0.5"/>
+    <rect x="130" y="180" width="55" height="220"/>
+    <rect x="138" y="195" width="12" height="15" rx="1" fill="#0a0e1a" opacity="0.5"/>
+    <rect x="160" y="195" width="12" height="15" rx="1" fill="#0a0e1a" opacity="0.5"/>
+    <rect x="138" y="225" width="12" height="15" rx="1" fill="#0a0e1a" opacity="0.5"/>
+    <rect x="160" y="225" width="12" height="15" rx="1" fill="#0a0e1a" opacity="0.5"/>
+    <rect x="310" y="220" width="50" height="180"/>
+    <rect x="318" y="235" width="10" height="12" rx="1" fill="#0a0e1a" opacity="0.5"/>
+    <rect x="340" y="235" width="10" height="12" rx="1" fill="#0a0e1a" opacity="0.5"/>
+    <rect x="370" y="190" width="45" height="210"/>
+    <rect x="378" y="205" width="10" height="12" rx="1" fill="#0a0e1a" opacity="0.5"/>
+    <rect x="396" y="205" width="10" height="12" rx="1" fill="#0a0e1a" opacity="0.5"/>
+    <rect x="425" y="250" width="55" height="150"/>
+    <rect x="433" y="265" width="12" height="15" rx="1" fill="#0a0e1a" opacity="0.5"/>
+    <rect x="455" y="265" width="12" height="15" rx="1" fill="#0a0e1a" opacity="0.5"/>
+    <!-- Street light -->
+    <rect x="250" y="300" width="4" height="100"/>
+    <ellipse cx="262" cy="298" rx="15" ry="4"/>
+    <line x1="254" y1="300" x2="254" y2="310" stroke="#F5C518" stroke-width="1" opacity="0.3"/>
+  </svg>`,
+
+  'Машина': `<svg viewBox="0 0 480 400" xmlns="http://www.w3.org/2000/svg" fill="#F5C518">
+    <!-- Skyscrapers + road -->
+    <rect x="10" y="120" width="60" height="280" opacity="0.6"/>
+    <rect x="18" y="135" width="14" height="18" rx="1" fill="#0a0e1a" opacity="0.5"/>
+    <rect x="40" y="135" width="14" height="18" rx="1" fill="#0a0e1a" opacity="0.5"/>
+    <rect x="18" y="170" width="14" height="18" rx="1" fill="#0a0e1a" opacity="0.5"/>
+    <rect x="40" y="170" width="14" height="18" rx="1" fill="#0a0e1a" opacity="0.5"/>
+    <polygon points="40,120 35,90 45,90" opacity="0.4"/>
+    <rect x="85" y="160" width="50" height="240" opacity="0.5"/>
+    <rect x="150" y="100" width="65" height="300" opacity="0.6"/>
+    <polygon points="182,100 175,60 190,60" opacity="0.4"/>
+    <rect x="340" y="140" width="55" height="260" opacity="0.55"/>
+    <rect x="410" y="170" width="60" height="230" opacity="0.5"/>
+    <rect x="418" y="185" width="14" height="18" rx="1" fill="#0a0e1a" opacity="0.5"/>
+    <rect x="440" y="185" width="14" height="18" rx="1" fill="#0a0e1a" opacity="0.5"/>
+    <!-- Road -->
+    <rect x="0" y="380" width="480" height="20" opacity="0.3"/>
+    <rect x="30" y="388" width="40" height="4" rx="1" opacity="0.5"/>
+    <rect x="110" y="388" width="40" height="4" rx="1" opacity="0.5"/>
+    <rect x="190" y="388" width="40" height="4" rx="1" opacity="0.5"/>
+    <rect x="270" y="388" width="40" height="4" rx="1" opacity="0.5"/>
+    <rect x="350" y="388" width="40" height="4" rx="1" opacity="0.5"/>
+    <rect x="430" y="388" width="40" height="4" rx="1" opacity="0.5"/>
+  </svg>`,
+
+  'На химии': `<svg viewBox="0 0 480 400" xmlns="http://www.w3.org/2000/svg" fill="#F5C518">
+    <!-- Gym silhouettes -->
+    <!-- Barbell rack -->
+    <rect x="30" y="200" width="8" height="180"/>
+    <rect x="100" y="200" width="8" height="180"/>
+    <rect x="20" y="195" width="106" height="8" rx="2"/>
+    <!-- Barbell on rack -->
+    <rect x="38" y="230" width="62" height="6" rx="3"/>
+    <rect x="25" y="222" width="16" height="22" rx="2" opacity="0.7"/>
+    <rect x="97" y="222" width="16" height="22" rx="2" opacity="0.7"/>
+    <!-- Dumbbells on floor -->
+    <rect x="180" y="370" width="45" height="6" rx="3"/>
+    <rect x="173" y="365" width="14" height="16" rx="3" opacity="0.7"/>
+    <rect x="218" y="365" width="14" height="16" rx="3" opacity="0.7"/>
+    <rect x="260" y="370" width="45" height="6" rx="3"/>
+    <rect x="253" y="365" width="14" height="16" rx="3" opacity="0.7"/>
+    <rect x="298" y="365" width="14" height="16" rx="3" opacity="0.7"/>
+    <!-- Weight plates stacked -->
+    <rect x="380" y="340" width="8" height="40"/>
+    <circle cx="384" cy="345" r="18" fill="none" stroke="#F5C518" stroke-width="4" opacity="0.3"/>
+    <circle cx="384" cy="345" r="25" fill="none" stroke="#F5C518" stroke-width="4" opacity="0.2"/>
+    <!-- Pull-up bar -->
+    <rect x="420" y="130" width="6" height="250"/>
+    <rect x="460" y="130" width="6" height="250"/>
+    <rect x="418" y="126" width="50" height="8" rx="3"/>
+    <!-- Bench -->
+    <rect x="160" y="330" width="80" height="6" rx="2" transform="rotate(-10 200 333)"/>
+    <rect x="165" y="336" width="6" height="40"/>
+    <rect x="232" y="318" width="6" height="58"/>
+    <!-- Kettlebell -->
+    <circle cx="140" cy="370" r="14" opacity="0.5"/>
+    <path d="M132,358 Q140,348 148,358" fill="none" stroke="#F5C518" stroke-width="4" stroke-linecap="round"/>
+  </svg>`,
+
+  'Сигма': `<svg viewBox="0 0 480 400" xmlns="http://www.w3.org/2000/svg" fill="#F5C518">
+    <!-- Mountain range -->
+    <polygon points="0,400 80,200 160,400" opacity="0.2"/>
+    <polygon points="60,400 180,140 300,400" opacity="0.3"/>
+    <polygon points="180,400 300,100 420,400" opacity="0.25"/>
+    <polygon points="300,400 400,180 480,400" opacity="0.2"/>
+    <!-- Peak highlight -->
+    <polygon points="270,100 300,100 330,140 285,120" opacity="0.15"/>
+    <!-- Snow caps -->
+    <polygon points="180,140 195,170 165,170" opacity="0.4"/>
+    <polygon points="300,100 318,135 282,135" opacity="0.4"/>
+    <polygon points="400,180 415,210 385,210" opacity="0.35"/>
+    <!-- Wolf silhouette on peak -->
+    <path d="M290,96 L285,80 L288,88 L295,75 L296,88 L302,96Z" opacity="0.5"/>
+    <!-- Moon -->
+    <circle cx="100" cy="80" r="25" opacity="0.15"/>
+    <circle cx="108" cy="74" r="22" fill="#0a0e1a"/>
+    <!-- Stars -->
+    <circle cx="50" cy="50" r="1.5" opacity="0.4"/>
+    <circle cx="150" cy="30" r="1" opacity="0.3"/>
+    <circle cx="350" cy="45" r="1.5" opacity="0.35"/>
+    <circle cx="420" cy="60" r="1" opacity="0.3"/>
+    <circle cx="250" cy="20" r="1.5" opacity="0.4"/>
+    <circle cx="440" cy="30" r="1" opacity="0.25"/>
+  </svg>`,
+
+  'The Elon Musk': `<svg viewBox="0 0 480 400" xmlns="http://www.w3.org/2000/svg" fill="#F5C518">
+    <!-- Rocket -->
+    <path d="M240,40 Q240,20 240,40 L225,140 L255,140Z" opacity="0.5"/>
+    <rect x="225" y="140" width="30" height="80" rx="2" opacity="0.45"/>
+    <polygon points="220,220 225,140 225,220" opacity="0.35"/>
+    <polygon points="260,220 255,140 255,220" opacity="0.35"/>
+    <polygon points="225,220 240,240 255,220" opacity="0.4"/>
+    <!-- Flames -->
+    <polygon points="232,240 240,300 248,240" opacity="0.3"/>
+    <polygon points="235,240 240,280 245,240" opacity="0.5"/>
+    <polygon points="228,240 240,320 252,240" opacity="0.15"/>
+    <!-- Launch pad -->
+    <rect x="200" y="350" width="80" height="6" rx="2" opacity="0.3"/>
+    <rect x="210" y="356" width="8" height="40" opacity="0.25"/>
+    <rect x="262" y="356" width="8" height="40" opacity="0.25"/>
+    <!-- Stars / space -->
+    <circle cx="60" cy="60" r="1.5" opacity="0.4"/>
+    <circle cx="120" cy="100" r="1" opacity="0.3"/>
+    <circle cx="400" cy="50" r="2" opacity="0.35"/>
+    <circle cx="350" cy="120" r="1" opacity="0.3"/>
+    <circle cx="50" cy="180" r="1.5" opacity="0.25"/>
+    <circle cx="430" cy="200" r="1" opacity="0.3"/>
+    <circle cx="380" cy="280" r="1.5" opacity="0.2"/>
+    <!-- Planet -->
+    <circle cx="80" cy="300" r="35" opacity="0.1"/>
+    <ellipse cx="80" cy="300" rx="50" ry="8" fill="none" stroke="#F5C518" stroke-width="2" opacity="0.15"/>
+    <!-- Mars surface -->
+    <circle cx="420" cy="350" r="45" opacity="0.08"/>
+  </svg>`,
+
+  'Божество': `<svg viewBox="0 0 480 400" xmlns="http://www.w3.org/2000/svg" fill="#F5C518">
+    <!-- Greek temple -->
+    <!-- Pediment -->
+    <polygon points="60,160 240,80 420,160" opacity="0.3"/>
+    <rect x="60" y="155" width="360" height="10" opacity="0.35"/>
+    <!-- Columns -->
+    <rect x="80" y="165" width="18" height="200" rx="2" opacity="0.3"/>
+    <rect x="140" y="165" width="18" height="200" rx="2" opacity="0.3"/>
+    <rect x="200" y="165" width="18" height="200" rx="2" opacity="0.25"/>
+    <rect x="260" y="165" width="18" height="200" rx="2" opacity="0.25"/>
+    <rect x="320" y="165" width="18" height="200" rx="2" opacity="0.3"/>
+    <rect x="380" y="165" width="18" height="200" rx="2" opacity="0.3"/>
+    <!-- Column caps -->
+    <rect x="74" y="160" width="30" height="8" rx="1" opacity="0.35"/>
+    <rect x="134" y="160" width="30" height="8" rx="1" opacity="0.35"/>
+    <rect x="194" y="160" width="30" height="8" rx="1" opacity="0.3"/>
+    <rect x="254" y="160" width="30" height="8" rx="1" opacity="0.3"/>
+    <rect x="314" y="160" width="30" height="8" rx="1" opacity="0.35"/>
+    <rect x="374" y="160" width="30" height="8" rx="1" opacity="0.35"/>
+    <!-- Base / steps -->
+    <rect x="50" y="365" width="380" height="10" rx="1" opacity="0.3"/>
+    <rect x="40" y="378" width="400" height="10" rx="1" opacity="0.25"/>
+    <rect x="30" y="391" width="420" height="10" rx="1" opacity="0.2"/>
+    <!-- Glow rays from above -->
+    <line x1="240" y1="30" x2="100" y2="160" stroke="#F5C518" stroke-width="1" opacity="0.1"/>
+    <line x1="240" y1="30" x2="200" y2="160" stroke="#F5C518" stroke-width="1" opacity="0.1"/>
+    <line x1="240" y1="30" x2="280" y2="160" stroke="#F5C518" stroke-width="1" opacity="0.1"/>
+    <line x1="240" y1="30" x2="380" y2="160" stroke="#F5C518" stroke-width="1" opacity="0.1"/>
+    <circle cx="240" cy="30" r="15" opacity="0.15"/>
+  </svg>`,
+
+  'Rockefeller': `<svg viewBox="0 0 480 400" xmlns="http://www.w3.org/2000/svg" fill="#F5C518">
+    <!-- Manhattan skyline -->
+    <rect x="10" y="180" width="40" height="220" opacity="0.35"/>
+    <rect x="60" y="140" width="35" height="260" opacity="0.4"/>
+    <rect x="105" y="100" width="45" height="300" opacity="0.45"/>
+    <polygon points="127,100 120,60 135,60" opacity="0.35"/>
+    <rect x="160" y="160" width="35" height="240" opacity="0.35"/>
+    <rect x="205" y="80" width="50" height="320" opacity="0.5"/>
+    <rect x="215" y="95" width="10" height="14" rx="1" fill="#0a0e1a" opacity="0.4"/>
+    <rect x="235" y="95" width="10" height="14" rx="1" fill="#0a0e1a" opacity="0.4"/>
+    <rect x="265" y="130" width="40" height="270" opacity="0.4"/>
+    <rect x="315" y="90" width="50" height="310" opacity="0.45"/>
+    <polygon points="340,90 333,50 347,50" opacity="0.3"/>
+    <rect x="375" y="150" width="35" height="250" opacity="0.35"/>
+    <rect x="420" y="120" width="50" height="280" opacity="0.4"/>
+    <!-- Dollar signs floating -->
+    <text x="180" y="60" font-size="24" opacity="0.12" font-family="serif">$</text>
+    <text x="300" y="40" font-size="18" opacity="0.1" font-family="serif">$</text>
+    <text x="380" y="70" font-size="20" opacity="0.08" font-family="serif">$</text>
+    <text x="80" y="50" font-size="16" opacity="0.1" font-family="serif">$</text>
+  </svg>`,
+
+  'Мегалодон': `<svg viewBox="0 0 480 400" xmlns="http://www.w3.org/2000/svg" fill="#F5C518">
+    <!-- Ocean waves -->
+    <path d="M0,120 Q60,100 120,120 Q180,140 240,120 Q300,100 360,120 Q420,140 480,120 L480,130 Q420,150 360,130 Q300,110 240,130 Q180,150 120,130 Q60,110 0,130Z" opacity="0.15"/>
+    <path d="M0,160 Q60,140 120,160 Q180,180 240,160 Q300,140 360,160 Q420,180 480,160 L480,170 Q420,190 360,170 Q300,150 240,170 Q180,190 120,170 Q60,150 0,170Z" opacity="0.12"/>
+    <!-- Underwater -->
+    <path d="M0,200 Q120,185 240,200 Q360,215 480,200 L480,400 L0,400Z" opacity="0.08"/>
+    <!-- Shark fin -->
+    <path d="M340,115 L355,70 L370,118" opacity="0.4"/>
+    <!-- Underwater bubbles -->
+    <circle cx="100" cy="250" r="5" opacity="0.15"/>
+    <circle cx="110" cy="235" r="3" opacity="0.12"/>
+    <circle cx="95" cy="225" r="2" opacity="0.1"/>
+    <circle cx="350" cy="280" r="4" opacity="0.12"/>
+    <circle cx="360" cy="265" r="3" opacity="0.1"/>
+    <!-- Shark silhouette underwater -->
+    <path d="M60,320 Q80,310 120,315 L180,310 Q200,308 220,315 L230,318 Q200,325 160,325 Q120,328 80,325Z" opacity="0.2"/>
+    <polygon points="150,308 165,285 170,312" opacity="0.2"/>
+    <!-- Seaweed -->
+    <path d="M400,400 Q395,360 405,330 Q395,310 400,280" stroke="#F5C518" stroke-width="4" fill="none" opacity="0.15" stroke-linecap="round"/>
+    <path d="M420,400 Q425,370 415,345 Q425,320 420,300" stroke="#F5C518" stroke-width="3" fill="none" opacity="0.12" stroke-linecap="round"/>
+    <path d="M440,400 Q435,375 445,350" stroke="#F5C518" stroke-width="3" fill="none" opacity="0.1" stroke-linecap="round"/>
+    <!-- Treasure chest -->
+    <rect x="30" y="360" width="40" height="25" rx="3" opacity="0.2"/>
+    <path d="M28,360 Q50,348 72,360" fill="none" stroke="#F5C518" stroke-width="3" opacity="0.2"/>
+    <circle cx="50" cy="368" r="3" opacity="0.3"/>
+  </svg>`,
+};
+
+let currentBgRank = null;
+
+function updateRankBg(rankName) {
+  if (rankName === currentBgRank) return;
+  currentBgRank = rankName;
+  const el = document.getElementById('rank-bg');
+  el.classList.add('fading');
+  setTimeout(() => {
+    el.innerHTML = rankBGs[rankName] || rankBGs['Заводчанин'];
+    el.classList.remove('fading');
+  }, 400);
+}
+
+function calcGoal() {
+  const start = new Date('2026-06-18T00:00:00');
+  const now = new Date();
+  let months = (now.getFullYear() - start.getFullYear()) * 12 + (now.getMonth() - start.getMonth());
+  if (now.getDate() < start.getDate()) months--;
+  if (months < 0) months = 0;
+  const goal = 1000 + months * 1000;
+  const next = new Date(start);
+  next.setMonth(start.getMonth() + months + 1);
+  const days = Math.max(0, Math.ceil((next - now) / 86400000));
+  return { goal, days };
+}
+
+// ══════════════════════════════════════
+// ── Supabase: register / load user ──
+// ══════════════════════════════════════
+
+function showErr(msg) {
+  console.error('APP:', msg);
+}
+
+async function initUser() {
+  // Get TG user
+  const tgUser = tg?.initDataUnsafe?.user;
+
+  if (tgUser?.id) {
+    currentUserId = tgUser.id;
+    currentUserName = tgUser.first_name || tgUser.username || 'Участник';
+    currentUserPhoto = tgUser.photo_url || null;
+  } else {
+    currentUserId = 7208930789;
+    currentUserName = 'Булат';
+    currentUserPhoto = null;
+  }
+
+  // Show immediately
+  document.getElementById('user-name').textContent = currentUserName;
+  const avatarEl = document.getElementById('user-avatar');
+  avatarEl.src = currentUserPhoto ||
+    `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUserName)}&background=F5C518&color=000&size=128&bold=true&font-size=0.45`;
+
+  // Generate a game_id from telegram_id
+  currentGameId = String(currentUserId).slice(-6).toUpperCase();
+
+  // Load or create user in DB
+  try {
+    const { data: user } = await sb
+      .from('users')
+      .select('*')
+      .eq('telegram_id', Number(currentUserId))
+      .maybeSingle();
+
+    if (user) {
+      // Existing user
+      currentLogin = user.login || currentUserName;
+      currentGameId = user.game_id || currentGameId;
+      totalEarned = user.total_earned || 0;
+      coinsChlg = user.coins_chlg || 0;
+      hasPedestal = user.has_pedestal || false;
+      hasVipNick = user.has_vip_nick || false;
+      shields = user.shields || 0;
+      hammers = user.hammers || 0;
+      spinsRemaining = user.spins_remaining ?? 5;
+
+      // Update name/photo
+      await sb.from('users').update({
+        name: currentUserName,
+        photo_url: currentUserPhoto
+      }).eq('telegram_id', Number(currentUserId));
+
+    } else {
+      // New user — create
+      currentLogin = currentUserName;
+      const { error } = await sb.from('users').insert({
+        telegram_id: Number(currentUserId),
+        name: currentUserName,
+        login: currentUserName,
+        game_id: currentGameId,
+        photo_url: currentUserPhoto,
+        total_earned: 0,
+        coins_chlg: 0,
+        spins_remaining: 5,
+        shields: 0,
+        hammers: 0,
+        bonus_goals_claimed: 0
+      });
+      if (error) console.error('Insert error:', error);
+    }
+  } catch(e) {
+    console.error('DB error:', e);
+  }
+
+  render();
+  loadFriends().then(loadGang);
+  initSpins();
+}
+
+
+
+// ══════════════════════════════════════
+// ── Deposit request system ──
+// ══════════════════════════════════════
+let pendingAmount = 0;
+let selectedProofFile = null;
+
+function openDepositModal(amount) {
+  pendingAmount = amount;
+  selectedProofFile = null;
+  document.getElementById('dep-amount-show').textContent = '$' + amount.toFixed(2);
+  document.getElementById('dep-submit').disabled = true;
+  document.getElementById('dep-status').textContent = '';
+  document.getElementById('uz-icon').textContent = '📸';
+  document.getElementById('uz-text').textContent = 'Нажми, чтобы загрузить фото';
+  document.getElementById('uz-text').classList.remove('active');
+  document.getElementById('upload-zone').classList.remove('has-file');
+  document.getElementById('upload-preview').classList.remove('visible');
+  document.getElementById('dep-modal').classList.remove('hidden');
+}
+
+function closeDepositModal() {
+  document.getElementById('dep-modal').classList.add('hidden');
+  pendingAmount = 0;
+  selectedProofFile = null;
+}
+
+// Upload zone click → open file picker
+document.getElementById('upload-zone').addEventListener('click', () => {
+  document.getElementById('proof-input').click();
+});
+
+// File selected
+document.getElementById('proof-input').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  selectedProofFile = file;
+
+  // Show preview
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    const preview = document.getElementById('upload-preview');
+    preview.src = ev.target.result;
+    preview.classList.add('visible');
+  };
+  reader.readAsDataURL(file);
+
+  document.getElementById('uz-icon').textContent = '✅';
+  document.getElementById('uz-text').textContent = file.name.slice(0, 30);
+  document.getElementById('uz-text').classList.add('active');
+  document.getElementById('upload-zone').classList.add('has-file');
+  document.getElementById('dep-submit').disabled = false;
+});
+
+// Cancel
+document.getElementById('dep-cancel').addEventListener('click', closeDepositModal);
+
+// Submit deposit request
+document.getElementById('dep-submit').addEventListener('click', async () => {
+  if (!selectedProofFile || pendingAmount <= 0) return;
+
+  const btn = document.getElementById('dep-submit');
+  const status = document.getElementById('dep-status');
+  btn.disabled = true;
+  btn.textContent = 'ЗАГРУЗКА...';
+  status.textContent = '';
+
+  try {
+    // 1. Upload proof image to Supabase Storage
+    const ext = selectedProofFile.name.split('.').pop() || 'jpg';
+    const fileName = `${currentUserId}_${Date.now()}.${ext}`;
+
+    const { data: uploadData, error: uploadErr } = await sb.storage
+      .from('proofs')
+      .upload(fileName, selectedProofFile, { upsert: false });
+
+    if (uploadErr) throw uploadErr;
+
+    // 2. Get public URL
+    const { data: urlData } = sb.storage.from('proofs').getPublicUrl(fileName);
+    const proofUrl = urlData.publicUrl;
+
+    // 3. Send to backend → bot notifies moderator
+    const backendRes = await fetch(`${BACKEND_URL}/api/deposit-request`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        telegram_id: Number(currentUserId),
+        amount: pendingAmount,
+        proof_url: proofUrl,
+        user_name: currentLogin || currentUserName,
+        game_id: currentGameId
+      })
+    });
+
+    if (!backendRes.ok) {
+      const errText = await backendRes.text();
+      throw new Error('Backend error: ' + errText);
+    }
+
+    // Success
+    if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+    status.textContent = '✅ Заявка отправлена на проверку!';
+    status.style.color = '#00c864';
+
+    setTimeout(() => {
+      closeDepositModal();
+    }, 1500);
+
+  } catch (e) {
+    console.error('Deposit error:', e);
+    status.textContent = '❌ Ошибка загрузки, попробуй снова';
+    status.style.color = '#ff3c3c';
+    btn.disabled = false;
+  }
+
+  btn.textContent = 'ОТПРАВИТЬ';
+});
+
+// Load pending deposits count
+async function loadPendingCount() {
+  try {
+    const { data, error } = await sb
+      .from('deposit_requests')
+      .select('id, amount, status, created_at')
+      .eq('telegram_id', Number(currentUserId))
+      .order('created_at', { ascending: false })
+      .limit(20);
+
+    if (!error && data) {
+      const pending = data.filter(d => d.status === 'pending');
+      const badge = document.getElementById('pending-badge');
+      if (pending.length > 0) {
+        document.getElementById('pending-count').textContent = pending.length;
+        badge.style.display = 'inline-flex';
+      } else {
+        badge.style.display = 'none';
+      }
+
+      // Check if any were approved since last load → update total
+      // (In production, the backend handles this. For now we re-fetch user data.)
+      const { data: userData } = await sb
+        .from('users')
+        .select('total_earned, coins_chlg')
+        .eq('telegram_id', Number(currentUserId))
+        .single();
+      if (userData) {
+        const oldTotal = totalEarned;
+        totalEarned = userData.total_earned || 0;
+        coinsChlg = userData.coins_chlg || 0;
+        if (totalEarned !== oldTotal) { render(); checkGoalBonus(); }
+      }
+
+      // Store deposit history for later display
+      window._depositHistory = data;
+    }
+  } catch (e) {
+    console.error('Load pending error:', e);
+  }
+}
+
+// Show deposits history (inline in a modal-like popup)
+function showDeposits() {
+  const data = window._depositHistory || [];
+  if (data.length === 0) return;
+
+  let listHtml = '<h3 style="font-size:16px;font-weight:900;letter-spacing:1.5px;text-align:center;margin-bottom:12px;">МОИ ЗАЯВКИ</h3>';
+  listHtml += '<div class="deposits-list">';
+
+  for (const d of data) {
+    const date = new Date(d.created_at).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+    const stClass = d.status === 'pending' ? 'pending' : d.status === 'approved' ? 'approved' : 'rejected';
+    const stText = d.status === 'pending' ? 'НА ПРОВЕРКЕ' : d.status === 'approved' ? 'ОДОБРЕНО' : 'ОТКЛОНЕНО';
+    listHtml += `
+      <div class="dep-item">
+        <div class="dep-info">
+          <span class="dep-amt">$${d.amount.toFixed(2)}</span>
+          <span class="dep-date">${date}</span>
+        </div>
+        <span class="dep-st ${stClass}">${stText}</span>
+      </div>`;
+  }
+
+  listHtml += '</div>';
+  listHtml += '<button class="dep-cancel" style="width:100%;margin-top:12px;" onclick="this.closest(\'.deposit-modal\').classList.add(\'hidden\')">ЗАКРЫТЬ</button>';
+
+  const overlay = document.createElement('div');
+  overlay.className = 'deposit-modal';
+  overlay.innerHTML = '<div class="deposit-box">' + listHtml + '</div>';
+  document.body.appendChild(overlay);
+
+  overlay.querySelector('.dep-cancel').addEventListener('click', () => {
+    overlay.remove();
+  });
+}
+
+// ══════════════════════════════════════
+// ── Supabase: load all users (Братва) ──
+// ══════════════════════════════════════
+async function loadGang() {
+  try {
+    let query = sb
+      .from('users')
+      .select('telegram_id, name, login, game_id, total_earned, coins_chlg, photo_url, has_vip_nick, has_pedestal')
+      .order('coins_chlg', { ascending: false })
+      .limit(50);
+
+    if (gangMode === 'friends' && friendsList.length > 0) {
+      query = sb
+        .from('users')
+        .select('telegram_id, name, login, game_id, total_earned, coins_chlg, photo_url, has_vip_nick, has_pedestal')
+        .in('telegram_id', [...friendsList, currentUserId])
+        .order('coins_chlg', { ascending: false });
+    } else if (gangMode === 'friends' && friendsList.length === 0) {
+      document.getElementById('gang-list').innerHTML =
+        '<div style="text-align:center;color:rgba(255,255,255,0.3);padding:40px 0;font-size:12px;">Добавь друзей по ID</div>';
+      return;
+    }
+
+    const { data, error } = await query;
+    if (!error && data) renderGang(data);
+  } catch (e) {
+    console.error('Supabase gang error:', e);
+  }
+}
+
+// ══════════════════════════════════════
+// ── Render functions ──
+// ══════════════════════════════════════
+function render() {
+  const { goal, days } = calcGoal();
+  const rank = getRank(totalEarned);
+
+  // Header
+  document.getElementById('user-name').textContent = currentLogin || currentUserName;
+  const avatarEl = document.getElementById('user-avatar');
+  // Try TG photo first, fallback to initials
+  const photoSrc = currentUserPhoto ||
+    `https://ui-avatars.com/api/?name=${encodeURIComponent(currentLogin || currentUserName)}&background=F5C518&color=000&size=128&bold=true&font-size=0.45`;
+  if (avatarEl.src !== photoSrc) avatarEl.src = photoSrc;
+
+  document.getElementById('rank-badge').textContent = 'РАНГ: ' + rank.name.toUpperCase();
+
+  // Token display
+  document.getElementById('token-amount').textContent = formatTokens(coinsChlg) + ' CHLG';
+  document.getElementById('game-id-display').textContent = currentGameId ? 'ID: ' + currentGameId : '';
+
+  // Update rank background
+  updateRankBg(rank.name);
+
+  // Update character image based on rank
+  const charImg = document.getElementById('rank-character');
+  if (charImg && charImg.getAttribute('src') !== rank.img) {
+    charImg.style.opacity = '0';
+    setTimeout(() => { charImg.src = rank.img; charImg.style.opacity = '1'; }, 200);
+  }
+
+  document.getElementById('days-num').textContent = days;
+  document.getElementById('bottom-days').textContent = `ДО КОНЦА ${days} ДНЕЙ`;
+
+  // Progress circle
+  const vis = Math.min(totalEarned, goal);
+  const pct = goal > 0 ? vis / goal : 0;
+  document.getElementById('progress-ring').style.strokeDashoffset = 150.8 - pct * 150.8;
+  document.getElementById('circle-amount').textContent = `$${totalEarned.toLocaleString('en-US')}`;
+  document.getElementById('circle-goal').textContent = `ИЗ $${goal.toLocaleString('en-US')}`;
+
+  renderRanks(rank);
+}
+
+function renderRanks(currentRank) {
+  const el = document.getElementById('tab-ranks');
+  el.innerHTML = '<h2>Лестница рангов</h2>';
+  for (const r of ranks) {
+    const isCurrent = r.name === currentRank.name;
+    const div = document.createElement('div');
+    div.className = 'rank-item' + (isCurrent ? ' current' : '');
+    div.innerHTML = `
+      <div class="rank-left">
+        <span class="rank-icon">${r.icon}</span>
+        <div>
+          <div class="rank-name">${r.name}</div>
+          <div class="rank-req">ОТ $${r.req.toLocaleString('en-US')}</div>
+        </div>
+      </div>
+      ${isCurrent ? '<span class="you-badge">ТЫ ЗДЕСЬ</span>' : ''}
+    `;
+    el.appendChild(div);
+  }
+}
+
+function renderGang(users) {
+  const el = document.getElementById('gang-list');
+  if (!el) return;
+  let html = '';
+
+  if (!users || users.length === 0) {
+    el.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,0.3);padding:40px 0;font-size:13px;">Пока никого нет</div>';
+    return;
+  }
+
+  users.forEach((user, i) => {
+    const tokens = user.coins_chlg || 0;
+    const rank = getRank(user.total_earned || 0);
+    const isMe = user.telegram_id === currentUserId;
+    const displayName = user.login || user.name || 'Аноним';
+    const isVip = user.has_vip_nick;
+    const hasPed = user.has_pedestal;
+    const photoSrc = user.photo_url
+      || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || '?')}&background=${isMe ? 'F5C518' : '2a2f3e'}&color=${isMe ? '000' : 'fff'}&size=72&bold=true&font-size=0.45`;
+
+    html += `
+      <div class="gang-item" style="${isMe ? 'border-color:var(--gold);box-shadow:0 0 14px rgba(245,197,24,0.2);' : ''};cursor:pointer;" onclick="openProfile('${user.telegram_id}')">
+        <div class="gang-left">
+          <div class="gang-pos" style="${i < 3 ? 'color:var(--gold);' : 'color:rgba(255,255,255,0.4);'}">${i + 1}</div>
+          <img class="gang-avatar" src="${photoSrc}" alt="" style="${isMe ? '' : 'border-color:rgba(255,255,255,0.15);'}">
+          <div>
+            <div class="gang-name" style="${isVip ? 'background:linear-gradient(135deg,#fff176,#ffd700,#ff8c00);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 4px rgba(245,197,24,0.4));' : (isMe ? 'color:var(--gold);' : '')}">${isVip ? '💎 ' : ''}${displayName}${isVip ? ' 👑' : ''}${isMe ? ' (ты)' : ''}</div>
+            <div class="gang-rank">${rank.icon} ${rank.name}</div>
+          </div>
+        </div>
+        <div style="text-align:right;">
+          <div class="gang-score" style="${isMe ? 'color:var(--gold);' : ''}">${formatTokens(tokens)} $CHLG</div>
+          <div style="font-size:9px;color:rgba(255,255,255,0.3);margin-top:2px;">$${(user.total_earned||0).toLocaleString('en-US')}</div>
+        </div>
+      </div>
+    `;
+  });
+
+  el.innerHTML = html;
+}
+
+function switchTab(tabId) {
+  document.querySelectorAll('.tab').forEach(t => {
+    t.classList.remove('active');
+    t.style.display = 'none';
+  });
+  const tab = document.getElementById(tabId);
+  if (tab) {
+    tab.classList.add('active');
+    tab.style.display = 'flex';
+  }
+  document.querySelectorAll('.nav-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.tab === tabId);
+  });
+  if (tabId === 'tab-gang') { loadFriends().then(loadGang); }
+  if (tabId === 'tab-shop') updateShopUI();
+  if (tabId === 'tab-spin') { updateSpinUI(); loadSpinHistory(); }
+  if (tabId === 'tab-ranks') { const r = getRank(totalEarned); renderRanks(r); }
+}
+
+// ══════════════════════════════════════
+// ── Tab switching ──
+// ══════════════════════════════════════
+document.querySelectorAll('.nav-btn').forEach(btn => {
+  btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+});
+
+// ══════════════════════════════════════
+// ── Add money button → open deposit modal ──
+// ══════════════════════════════════════
+document.getElementById('add-btn').addEventListener('click', async () => {
+  const input = document.getElementById('money-input');
+  const val = parseFloat(input.value);
+  if (isNaN(val) || val <= 0) return;
+  input.value = '';
+
+  try {
+    totalEarned += val;
+
+    // Check goal bonus
+    const { goal } = calcGoal();
+    const oldGoalsCleared = Math.floor((totalEarned - val) / goal);
+    const newGoalsCleared = Math.floor(totalEarned / goal);
+    const bonusTokens = Math.max(0, newGoalsCleared - oldGoalsCleared) * 100000;
+
+    // Tokens: 1 CHLG per $100
+    const earnedTokens = Math.floor(totalEarned / 100) - Math.floor((totalEarned - val) / 100);
+    coinsChlg += earnedTokens + bonusTokens;
+
+    // Save to Supabase
+    const updateData = { total_earned: totalEarned, coins_chlg: coinsChlg };
+    if (bonusTokens > 0) updateData.bonus_goals_claimed = newGoalsCleared;
+
+    await sb.from('users')
+      .update(updateData)
+      .eq('telegram_id', Number(currentUserId));
+
+    await sb.from('transactions').insert({
+      telegram_id: Number(currentUserId),
+      amount: val
+    });
+
+    render();
+    if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+
+    // Show toast
+    const toast = document.createElement('div');
+    toast.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#fef08a,#F5C518);color:#000;padding:10px 20px;border-radius:12px;font-weight:900;font-size:13px;z-index:9999;white-space:nowrap;box-shadow:0 4px 20px rgba(245,197,24,0.4);';
+    toast.textContent = `+$${val.toFixed(2)} добавлено!`;
+    document.body.appendChild(toast);
+    if (bonusTokens > 0) {
+      setTimeout(() => {
+        toast.textContent = `🎯 +${formatTokens(bonusTokens)} $CHLG бонус!`;
+      }, 1500);
+    }
+    setTimeout(() => toast.remove(), 3000);
+
+  } catch(e) {
+    showErr('Ошибка: ' + e.message);
+    totalEarned -= val; // rollback
+  }
+});
+
+document.getElementById('money-input').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') document.getElementById('add-btn').click();
+});
+
+
+
+
+
+// ══════════════════════════════════════
+// ── Profile modal ──
+// ══════════════════════════════════════
+let viewingUserId = null;
+let friendsList = [];
+let gangMode = 'all'; // 'all' | 'friends'
+
+async function openProfile(userId) {
+  viewingUserId = userId;
+  const modal = document.getElementById('profile-modal');
+  modal.classList.remove('hidden');
+
+  // Load user data
+  try {
+    const { data: user } = await sb
+      .from('users')
+      .select('*')
+      .eq('telegram_id', userId)
+      .single();
+
+    if (!user) return;
+
+    const rank = getRank(user.total_earned || 0);
+    const isVip = user.has_vip_nick;
+    const isMe = userId === currentUserId;
+
+    // Avatar
+    const avatarSrc = user.photo_url ||
+      `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name||'?')}&background=F5C518&color=000&size=128&bold=true`;
+    document.getElementById('pm-avatar').src = avatarSrc;
+
+    // Nick
+    const nickEl = document.getElementById('pm-nick');
+    nickEl.textContent = (isVip ? '💎 ' : '') + (user.login || user.name || 'Аноним') + (isVip ? ' 👑' : '');
+    nickEl.className = 'profile-nick' + (isVip ? ' vip' : '');
+
+    // Rank + IDs
+    document.getElementById('pm-rank').textContent = rank.icon + ' ' + rank.name.toUpperCase();
+    document.getElementById('pm-gameid').textContent = 'ID: ' + (user.game_id || '—');
+
+    const regDate = user.registered_at
+      ? 'С нами с ' + new Date(user.registered_at).toLocaleDateString('ru-RU', { day:'2-digit', month:'long', year:'numeric' })
+      : '';
+    document.getElementById('pm-regdate').textContent = regDate;
+
+    // Stats
+    document.getElementById('pm-tokens').textContent = formatTokens(user.coins_chlg || 0);
+    document.getElementById('pm-dollars').textContent = '$' + (user.total_earned || 0).toLocaleString('en-US');
+    document.getElementById('pm-shields').textContent = user.shields || 0;
+    document.getElementById('pm-hammers').textContent = user.hammers || 0;
+
+    // Items
+    const itemsEl = document.getElementById('pm-items');
+    const items = [];
+    if (user.has_pedestal) items.push('<div class="item-badge">⚡ Неоновая подставка</div>');
+    if (user.has_vip_nick) items.push('<div class="item-badge">👑 VIP Никнейм</div>');
+    itemsEl.innerHTML = items.length > 0
+      ? items.join('')
+      : '<span class="item-badge-empty">Нет предметов</span>';
+
+    // Friend button
+    const friendBtn = document.getElementById('pm-friend-btn');
+    if (isMe) {
+      friendBtn.style.display = 'none';
+    } else {
+      friendBtn.style.display = 'flex';
+      const isFriend = friendsList.includes(userId);
+      friendBtn.className = 'add-friend-btn' + (isFriend ? ' is-friend' : '');
+      friendBtn.innerHTML = isFriend ? '✓ В друзьях' : '➕ Добавить в друзья';
+    }
+
+  } catch (e) {
+    console.error('Profile load error:', e);
+  }
+}
+
+function closeProfile() {
+  document.getElementById('profile-modal').classList.add('hidden');
+  viewingUserId = null;
+}
+
+async function toggleFriend() {
+  if (!viewingUserId || viewingUserId === currentUserId) return;
+  const isFriend = friendsList.includes(viewingUserId);
+
+  try {
+    if (isFriend) {
+      await sb.from('friends')
+        .delete()
+        .eq('user_id', currentUserId)
+        .eq('friend_id', viewingUserId);
+      friendsList = friendsList.filter(id => id !== viewingUserId);
+    } else {
+      await sb.from('friends').insert({
+        user_id: currentUserId,
+        friend_id: viewingUserId
+      });
+      friendsList.push(viewingUserId);
+      if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+    }
+    // Update button
+    const friendBtn = document.getElementById('pm-friend-btn');
+    const nowFriend = friendsList.includes(viewingUserId);
+    friendBtn.className = 'add-friend-btn' + (nowFriend ? ' is-friend' : '');
+    friendBtn.innerHTML = nowFriend ? '✓ В друзьях' : '➕ Добавить в друзья';
+
+    // Refresh gang if on friends tab
+    if (gangMode === 'friends') loadGang();
+  } catch (e) {
+    console.error('Friend toggle error:', e);
+  }
+}
+
+async function loadFriends() {
+  try {
+    const { data } = await sb
+      .from('friends')
+      .select('friend_id')
+      .eq('user_id', currentUserId);
+    friendsList = data ? data.map(r => r.friend_id) : [];
+  } catch (e) { friendsList = []; }
+}
+
+// ── Gang sub-tabs (All / Friends) ──
+function switchGangTab(mode) {
+  gangMode = mode;
+  document.getElementById('gtab-all').classList.toggle('active', mode === 'all');
+  document.getElementById('gtab-friends').classList.toggle('active', mode === 'friends');
+  loadGang();
+}
+
+// ── Search by game_id ──
+document.getElementById('gang-search-input').addEventListener('input', (e) => {
+  e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+});
+
+document.getElementById('gang-search-btn').addEventListener('click', async () => {
+  const query = document.getElementById('gang-search-input').value.trim();
+  if (query.length < 2) return;
+
+  try {
+    const { data } = await sb
+      .from('users')
+      .select('telegram_id, name, login, game_id, total_earned, coins_chlg, photo_url, has_vip_nick, has_pedestal')
+      .ilike('game_id', `%${query}%`)
+      .limit(10);
+
+    if (data && data.length > 0) {
+      renderGang(data);
+    } else {
+      document.getElementById('gang-list').innerHTML =
+        '<div style="text-align:center;color:rgba(255,255,255,0.3);padding:30px 0;font-size:12px;">Игрок не найден</div>';
+    }
+  } catch (e) {
+    console.error('Search error:', e);
+  }
+});
+
+// ══════════════════════════════════════
+// ── Spin (Roulette) system ──
+// ══════════════════════════════════════
+let spinsRemaining = 5;
+let shields = 0;
+let hammers = 0;
+let isSpinning = false;
+let spinTimerInterval = null;
+
+const SPIN_ITEMS = [
+  { emoji: '🪙', type: 'tokens', label: 'Токены',   weight: 50 },
+  { emoji: '🪙', type: 'tokens', label: 'Токены',   weight: 50 },
+  { emoji: '🛡️', type: 'shield', label: 'Щит',      weight: 25 },
+  { emoji: '🔨', type: 'hammer', label: 'Кувалда',  weight: 15 },
+  { emoji: '💰', type: 'tokens', label: 'Джекпот',  weight: 10 },
+];
+
+const TOKEN_PRIZES = [1000, 2500, 5000, 10000, 25000, 50000];
+
+function weightedRandom(items) {
+  const total = items.reduce((s, i) => s + i.weight, 0);
+  let rand = Math.random() * total;
+  for (const item of items) {
+    rand -= item.weight;
+    if (rand <= 0) return item;
+  }
+  return items[0];
+}
+
+function initReels() {
+  for (let r = 0; r < 3; r++) {
+    const inner = document.getElementById(`reel-inner-${r}`);
+    inner.innerHTML = '';
+    // Fill with random symbols for visual
+    const symbols = ['🪙','🛡️','🔨','💰','🪙','🪙','🛡️','🔨','💰','🪙'];
+    symbols.forEach(s => {
+      const div = document.createElement('div');
+      div.className = 'reel-item';
+      div.textContent = s;
+      inner.appendChild(div);
+    });
+    // Set initial position to middle
+    inner.style.transform = 'translateY(0px)';
+  }
+}
+
+async function doSpin() {
+  if (isSpinning || spinsRemaining <= 0) return;
+
+  isSpinning = true;
+  const btn = document.getElementById('spin-btn');
+  btn.disabled = true;
+  btn.classList.add('spinning');
+  btn.textContent = '⚡ КРУТИМ...';
+
+  document.getElementById('sr-title').classList.remove('show');
+  document.getElementById('sr-sub').classList.remove('show');
+
+  if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+
+  // Determine result
+  const result = weightedRandom(SPIN_ITEMS);
+  let tokenAmount = 0;
+  if (result.type === 'tokens') {
+    tokenAmount = TOKEN_PRIZES[Math.floor(Math.random() * TOKEN_PRIZES.length)];
+    if (result.label === 'Джекпот') tokenAmount = 100000;
+  }
+
+  // Animate reels
+  const reelEmojis = [
+    SPIN_ITEMS[Math.floor(Math.random() * SPIN_ITEMS.length)].emoji,
+    result.emoji,
+    SPIN_ITEMS[Math.floor(Math.random() * SPIN_ITEMS.length)].emoji,
+  ];
+
+  // Spin animation for each reel with delay
+  for (let r = 0; r < 3; r++) {
+    const inner = document.getElementById(`reel-inner-${r}`);
+    const delay = r * 300;
+    const duration = 800 + r * 200;
+
+    setTimeout(() => {
+      // Fast scroll animation
+      inner.style.transition = `transform ${duration}ms cubic-bezier(0.17, 0.67, 0.12, 0.99)`;
+      inner.style.transform = `translateY(-${90 * 7}px)`;
+
+      setTimeout(() => {
+        // Snap to result
+        inner.style.transition = 'none';
+        inner.style.transform = 'translateY(0px)';
+        // Set final symbol
+        const items = inner.querySelectorAll('.reel-item');
+        items.forEach((item, i) => {
+          item.textContent = i === 0 ? reelEmojis[r] : SPIN_ITEMS[Math.floor(Math.random() * SPIN_ITEMS.length)].emoji;
+        });
+        inner.style.transition = 'transform 0.3s ease-out';
+        inner.style.transform = 'translateY(0px)';
+      }, duration);
+    }, delay);
+  }
+
+  const totalDelay = 800 + 2 * 300 + 200 + 300;
+
+  setTimeout(async () => {
+    // Show result
+    const srTitle = document.getElementById('sr-title');
+    const srSub = document.getElementById('sr-sub');
+
+    if (result.type === 'tokens') {
+      srTitle.textContent = `🪙 +${formatTokens(tokenAmount)} $CHLG`;
+      srTitle.style.color = 'var(--gold)';
+      srSub.textContent = result.label === 'Джекпот' ? '🎉 ДЖЕКПОТ!' : '';
+      coinsChlg += tokenAmount;
+    } else if (result.type === 'shield') {
+      srTitle.textContent = '🛡️ Щит получен!';
+      srTitle.style.color = '#64b5f6';
+      srSub.textContent = 'Защита от атаки';
+      shields++;
+    } else if (result.type === 'hammer') {
+      srTitle.textContent = '🔨 Кувалда!';
+      srTitle.style.color = '#ef5350';
+      srSub.textContent = 'Атакуй базу игрока';
+      hammers++;
+    }
+
+    srTitle.classList.add('show');
+    srSub.classList.add('show');
+
+    if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+
+    // Update spins
+    spinsRemaining--;
+    updateSpinUI();
+    render();
+
+    // Save to Supabase
+    try {
+      const updateData = {
+        spins_remaining: spinsRemaining,
+        last_spin_at: new Date().toISOString(),
+        shields,
+        hammers,
+      };
+      if (result.type === 'tokens') updateData.coins_chlg = coinsChlg;
+
+      await Promise.all([
+        sb.from('users').update(updateData).eq('telegram_id', Number(currentUserId)),
+        sb.from('spins').insert({
+          telegram_id: currentUserId,
+          result: result.type,
+          amount: result.type === 'tokens' ? tokenAmount : null
+        })
+      ]);
+
+      loadSpinHistory();
+    } catch (e) {
+      console.error('Spin save error:', e);
+    }
+
+    isSpinning = false;
+    btn.classList.remove('spinning');
+
+    if (spinsRemaining > 0) {
+      btn.disabled = false;
+      btn.textContent = '🎰 КРУТИТЬ';
+    } else {
+      btn.textContent = '⏳ НЕТ СПИНОВ';
+      startSpinTimer();
+    }
+  }, totalDelay);
+}
+
+function updateSpinUI() {
+  // Dots
+  const dotsEl = document.getElementById('spins-dots');
+  if (dotsEl) {
+    dotsEl.innerHTML = '';
+    for (let i = 0; i < 5; i++) {
+      const dot = document.createElement('div');
+      dot.className = 'spin-dot' + (i < spinsRemaining ? ' active' : '');
+      dotsEl.appendChild(dot);
+    }
+  }
+
+  // Inventory
+  document.getElementById('inv-tokens').textContent = formatTokens(coinsChlg);
+  document.getElementById('inv-shields').textContent = shields;
+  document.getElementById('inv-hammers').textContent = hammers;
+
+  // Button state
+  const btn = document.getElementById('spin-btn');
+  if (btn && !isSpinning) {
+    if (spinsRemaining > 0) {
+      btn.disabled = false;
+      btn.textContent = `🎰 КРУТИТЬ (${spinsRemaining})`;
+    } else {
+      btn.disabled = true;
+      btn.textContent = '⏳ НЕТ СПИНОВ';
+    }
+  }
+}
+
+function startSpinTimer() {
+  if (spinTimerInterval) clearInterval(spinTimerInterval);
+
+  function tick() {
+    const timerEl = document.getElementById('spin-timer');
+    if (!timerEl) return;
+
+    // Spins refill 2h after last_spin_at
+    // We use a simple 2-hour countdown from when they ran out
+    const nextRefill = new Date(Date.now() + 2 * 60 * 60 * 1000);
+    window._spinRefillAt = window._spinRefillAt || nextRefill;
+
+    const diff = window._spinRefillAt - Date.now();
+    if (diff <= 0) {
+      clearInterval(spinTimerInterval);
+      spinsRemaining = 5;
+      window._spinRefillAt = null;
+      updateSpinUI();
+      timerEl.textContent = '';
+      return;
+    }
+    const h = Math.floor(diff / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    timerEl.innerHTML = `Спины восстановятся через <span>${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}</span>`;
+  }
+
+  tick();
+  spinTimerInterval = setInterval(tick, 1000);
+}
+
+async function loadSpinHistory() {
+  try {
+    const { data } = await sb
+      .from('spins')
+      .select('result, amount, created_at')
+      .eq('telegram_id', Number(currentUserId))
+      .order('created_at', { ascending: false })
+      .limit(10);
+
+    const listEl = document.getElementById('spin-history-list');
+    if (!listEl || !data) return;
+
+    if (data.length === 0) {
+      listEl.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,0.2);font-size:11px;padding:12px 0;">Ещё не крутил</div>';
+      return;
+    }
+
+    listEl.innerHTML = data.map(s => {
+      const icon = s.result === 'tokens' ? '🪙' : s.result === 'shield' ? '🛡️' : '🔨';
+      const name = s.result === 'tokens' ? `+${formatTokens(s.amount)} $CHLG` : s.result === 'shield' ? 'Щит' : 'Кувалда';
+      const date = new Date(s.created_at).toLocaleString('ru-RU', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
+      return `<div class="sh-item">
+        <div class="sh-left">
+          <span class="sh-icon">${icon}</span>
+          <div><div class="sh-name">${name}</div><div class="sh-date">${date}</div></div>
+        </div>
+        ${s.result === 'tokens' ? `<span class="sh-amount">+${formatTokens(s.amount)}</span>` : ''}
+      </div>`;
+    }).join('');
+  } catch (e) {
+    console.error('Spin history error:', e);
+  }
+}
+
+async function initSpins() {
+  try {
+    const { data } = await sb
+      .from('users')
+      .select('spins_remaining, last_spin_at, shields, hammers')
+      .eq('telegram_id', Number(currentUserId))
+      .single();
+
+    if (data) {
+      shields = data.shields || 0;
+      hammers = data.hammers || 0;
+
+      // Check if 2h passed since last spin → refill
+      if (data.last_spin_at) {
+        const lastSpin = new Date(data.last_spin_at);
+        const hoursPassed = (Date.now() - lastSpin) / 3600000;
+        if (hoursPassed >= 2) {
+          spinsRemaining = 5;
+          await sb.from('users').update({ spins_remaining: 5 }).eq('telegram_id', Number(currentUserId));
+        } else {
+          spinsRemaining = data.spins_remaining || 0;
+          if (spinsRemaining === 0) {
+            // Set countdown
+            window._spinRefillAt = new Date(lastSpin.getTime() + 2 * 3600000);
+            startSpinTimer();
+          }
+        }
+      } else {
+        spinsRemaining = 5;
+      }
+    }
+  } catch (e) {
+    console.error('Init spins error:', e);
+    spinsRemaining = 5;
+  }
+
+  initReels();
+  updateSpinUI();
+  loadSpinHistory();
+}
+
+document.getElementById('spin-btn').addEventListener('click', doSpin);
+
+// ══════════════════════════════════════
+// ── Shop state ──
+// ══════════════════════════════════════
+let hasPedestal = false;
+let hasVipNick = false;
+
+function updateShopUI() {
+  // Update pedestal character image
+  const pedImg = document.getElementById('pedestal-char-img');
+  if (pedImg) {
+    const rank = getRank(totalEarned);
+    pedImg.src = rank.img;
+  }
+  // Update vip name preview
+  const vipPreview = document.getElementById('vip-name-preview');
+  if (vipPreview) vipPreview.textContent = (currentLogin || 'ТВ НИК').toUpperCase();
+
+  // Pedestal
+  const pedestalItem = document.getElementById('shop-pedestal');
+  const buyPedestal = document.getElementById('buy-pedestal');
+  if (hasPedestal) {
+    pedestalItem.classList.add('owned');
+    if (!pedestalItem.querySelector('.owned-badge')) {
+      const badge = document.createElement('div');
+      badge.className = 'owned-badge'; badge.textContent = '✓ КУПЛЕНО';
+      pedestalItem.appendChild(badge);
+    }
+    buyPedestal.className = 'shop-buy-btn owned-btn';
+    buyPedestal.innerHTML = '✓ УЖЕ КУПЛЕНО';
+    buyPedestal.disabled = true;
+  } else {
+    pedestalItem.classList.remove('owned');
+    const ob = pedestalItem.querySelector('.owned-badge');
+    if (ob) ob.remove();
+    buyPedestal.className = 'shop-buy-btn';
+    buyPedestal.innerHTML = '<span class="star-icon">⭐</span><span>399 ЗВЁЗД</span>';
+    buyPedestal.disabled = false;
+  }
+
+  // VIP nick
+  const vipItem = document.getElementById('shop-vip');
+  const buyVip = document.getElementById('buy-vip');
+  if (hasVipNick) {
+    vipItem.classList.add('owned');
+    if (!vipItem.querySelector('.owned-badge')) {
+      const badge = document.createElement('div');
+      badge.className = 'owned-badge'; badge.textContent = '✓ КУПЛЕНО';
+      vipItem.appendChild(badge);
+    }
+    buyVip.className = 'shop-buy-btn owned-btn';
+    buyVip.innerHTML = '✓ УЖЕ КУПЛЕНО';
+    buyVip.disabled = true;
+  } else {
+    vipItem.classList.remove('owned');
+    const ob = vipItem.querySelector('.owned-badge');
+    if (ob) ob.remove();
+    buyVip.className = 'shop-buy-btn';
+    buyVip.innerHTML = '<span class="star-icon">⭐</span><span>699 ЗВЁЗД</span>';
+    buyVip.disabled = false;
+  }
+}
+
+async function processPurchase(itemType, stars, title) {
+  if (!tg) {
+    alert('Покупки работают только в Telegram');
+    return;
+  }
+
+  const btn = itemType === 'pedestal'
+    ? document.getElementById('buy-pedestal')
+    : document.getElementById('buy-vip');
+
+  if (btn) { btn.disabled = true; btn.innerHTML = '⏳ ЗАГРУЗКА...'; }
+
+  try {
+    // 1. Get invoice link from backend
+    const res = await fetch(`${BACKEND_URL}/api/create-invoice`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        telegram_id: Number(currentUserId),
+        item_type: itemType,
+        stars: stars,
+        title: title
+      })
+    });
+
+    if (!res.ok) throw new Error('Server error: ' + res.status);
+    const data = await res.json();
+    if (!data.invoice_link) throw new Error('No invoice link');
+
+    // 2. Open Telegram payment UI
+    tg.openInvoice(data.invoice_link, async (status) => {
+      if (status === 'paid') {
+        // Update local state immediately
+        if (itemType === 'pedestal') hasPedestal = true;
+        if (itemType === 'vip_nick') hasVipNick = true;
+        updateShopUI();
+        if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+        render();
+      } else if (status === 'cancelled' || status === 'failed') {
+        updateShopUI(); // restore button
+      }
+    });
+
+  } catch (e) {
+    console.error('Purchase error:', e);
+    alert('Ошибка: ' + e.message + '\nПроверь подключение и попробуй снова');
+    updateShopUI(); // restore button
+  }
+}
+
+document.getElementById('buy-pedestal').addEventListener('click', () => {
+  if (!hasPedestal) processPurchase('pedestal', 399, 'Неоновая подставка');
+});
+
+document.getElementById('buy-vip').addEventListener('click', () => {
+  if (!hasVipNick) processPurchase('vip_nick', 699, 'VIP Никнейм');
+});
+
+// ══════════════════════════════════════
+// ── Promo code activation ──
+// ══════════════════════════════════════
+document.getElementById('promo-input').addEventListener('input', (e) => {
+  e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+  document.getElementById('promo-msg').textContent = '';
+});
+
+document.getElementById('promo-btn').addEventListener('click', async () => {
+  const code = document.getElementById('promo-input').value.trim();
+  const msg = document.getElementById('promo-msg');
+  const btn = document.getElementById('promo-btn');
+
+  if (code.length < 6) {
+    msg.textContent = 'Введи промокод';
+    msg.style.color = 'rgba(255,255,255,0.3)';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = '...';
+  msg.textContent = '';
+
+  try {
+    // Check if code exists and not used
+    const { data: promo, error } = await sb
+      .from('promo_codes')
+      .select('code, tokens_amount, is_used, used_by')
+      .eq('code', code)
+      .single();
+
+    if (error || !promo) {
+      msg.textContent = '❌ Промокод не найден';
+      msg.style.color = '#ff3c3c';
+      btn.disabled = false; btn.textContent = 'АКТИВИРОВАТЬ';
+      return;
+    }
+
+    if (promo.is_used) {
+      msg.textContent = promo.used_by === currentUserId
+        ? '⚠️ Ты уже активировал этот промокод'
+        : '❌ Промокод уже использован';
+      msg.style.color = '#ffa500';
+      btn.disabled = false; btn.textContent = 'АКТИВИРОВАТЬ';
+      return;
+    }
+
+    // Mark as used + add tokens
+    const newTokens = coinsChlg + promo.tokens_amount;
+
+    const [{ error: e1 }, { error: e2 }] = await Promise.all([
+      sb.from('promo_codes').update({
+        is_used: true,
+        used_by: currentUserId,
+        used_at: new Date().toISOString()
+      }).eq('code', code),
+      sb.from('users').update({ coins_chlg: newTokens }).eq('telegram_id', Number(currentUserId))
+    ]);
+
+    if (e1 || e2) throw e1 || e2;
+
+    coinsChlg = newTokens;
+    render();
+
+    if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+    msg.textContent = `🎉 +${formatTokens(promo.tokens_amount)} $CHLG зачислено!`;
+    msg.style.color = '#00c864';
+    document.getElementById('promo-input').value = '';
+
+  } catch (e) {
+    msg.textContent = '❌ Ошибка, попробуй снова';
+    msg.style.color = '#ff3c3c';
+    console.error('Promo error:', e);
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'АКТИВИРОВАТЬ';
+});
+
+// ══════════════════════════════════════
+// ── Goal bonus: 100K tokens per completed month ──
+// ══════════════════════════════════════
+async function checkGoalBonus() {
+  if (!currentUserId || !isRegistered) return;
+
+  const { goal } = calcGoal();
+
+  // Only trigger if totalEarned >= current goal
+  if (totalEarned < goal) return;
+
+  // Check if bonus was already given for this goal level
+  // We store how many goal bonuses received in users table
+  // bonus_goals_claimed = number of times goal was hit
+  const { data: userData } = await sb
+    .from('users')
+    .select('bonus_goals_claimed')
+    .eq('telegram_id', Number(currentUserId))
+    .single();
+
+  // Calculate how many times goal should have been claimed
+  const { goal: currentGoal } = calcGoal();
+  const start = new Date('2026-06-18T00:00:00');
+  const now = new Date();
+  let monthsElapsed = (now.getFullYear() - start.getFullYear()) * 12 + (now.getMonth() - start.getMonth());
+  if (now.getDate() < start.getDate()) monthsElapsed--;
+  if (monthsElapsed < 0) monthsElapsed = 0;
+
+  // Goals are $1000, $2000, $3000...
+  // Count how many goals the user has cleared
+  const goalsCleared = Math.min(
+    monthsElapsed + 1,
+    Math.floor(totalEarned / 1000)
+  );
+
+  const claimed = userData?.bonus_goals_claimed || 0;
+
+  if (goalsCleared > claimed) {
+    const bonusCount = goalsCleared - claimed;
+    const bonusTokens = bonusCount * 100000;
+    const newTokens = coinsChlg + bonusTokens;
+
+    await Promise.all([
+      sb.from('users').update({
+        coins_chlg: newTokens,
+        bonus_goals_claimed: goalsCleared
+      }).eq('telegram_id', Number(currentUserId)),
+      sb.from('transactions').insert({
+        telegram_id: currentUserId,
+        amount: bonusTokens,
+        type: 'goal_bonus'
+      })
+    ]);
+
+    coinsChlg = newTokens;
+
+    // Show toast for each bonus
+    showGoalToast(bonusTokens);
+    if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+    render();
+  }
+}
+
+function showGoalToast(tokens) {
+  const toast = document.getElementById('goal-toast');
+  toast.querySelector('.gt-amount').textContent = '+' + formatTokens(tokens) + ' $CHLG';
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 3500);
+}
+
+// ══════════════════════════════════════
+// ── Init ──
+// ══════════════════════════════════════
+window.onerror = function(msg, src, line) {
+  showErr('JS ERROR: ' + msg + ' line:' + line);
+  return false;
+};
+
+window.addEventListener('unhandledrejection', function(e) {
+  showErr('PROMISE ERR: ' + (e.reason?.message || String(e.reason)));
+});
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initUser);
+} else {
+  initUser();
+}
+</script>
+</body>
+</html>
