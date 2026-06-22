@@ -1543,7 +1543,7 @@ function updateRankBg(rankName) {
 
 // ── initUser ──
 async function initUser() {
-  const tgUser = tg?.initDataUnsafe?.user;
+  const tgUser = tg?.initDataUnsafe?.user || (tg?.initData ? JSON.parse(decodeURIComponent(new URLSearchParams(tg.initData).get('user')||'null')) : null);
 
   if (tgUser?.id) {
     currentUserId = tgUser.id;
